@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{padding: 0;margin: 0;box-sizing: border-box}
+        img {
+            display: block;
+            margin-bottom: 50px;
+            width: 400px;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww1.sinaimg.cn/large/006y8mN6gw1fa7kaed2hpj30sg0l9q54.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<img src="image/caapp.jpg" data-src="http://ww4.sinaimg.cn/large/006y8mN6gw1fa5obmqrmvj305k05k3yh.jpg" alt="">
+<script>
+    var n = 0,
+        imgNum = document.querySelectorAll('img').length,
+        img = document.querySelectorAll('img');
+
+    lazyload();
+
+    window.addEventListener('scroll',lazyload,false);
+    window.addEventListener('resize',lazyload,false);
+
+    function lazyload() {
+        console.log(1111111111);
+        [].forEach.call(img,function (item) {
+           var _bcr=item.getBoundingClientRect(), _eh=_bcr.height,_t=_bcr.top,
+               cHeight=document.documentElement.clientHeight;
+           if(_t>-_eh&&_t<cHeight){
+                var src=item.getAttribute('data-src');
+                item.src=src;
+           }
+        });
+    }
+
+
+    function throttle(fun, delay, time) {
+        var timeout, startTime = new Date();
+        return function() {
+            var context = this,
+                args = arguments,
+                curTime = new Date();
+            clearTimeout(timeout);
+            // 如果达到了规定的触发时间间隔，触发 handler
+            if (curTime - startTime >= time) {
+                fun.apply(context, args);
+                startTime = curTime;
+                // 没达到触发间隔，重新设定定时器
+            } else {
+                timeout = setTimeout(fun, delay);
+            }
+        }
+    }
+</script>
+</body>
+</html>

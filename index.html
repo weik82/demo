@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="info" id="info">
+    <p id="multipointStart">0</p>
+    <p id="pinch">0</p>
+    <p id="multipointEnd">0</p>
+    <p id="pressMove">0</p>
+    <p id="tap">0</p>
+</div>
+<div class="swipe">
+    <div class="swipe-wrap" id="swipe">
+        <div class="swipe-item"><img src="image/121023k21ozaq8ulmkorrl.jpg" id="test1" class="swipe-img" alt="" width="100%"></div>
+        <div class="swipe-item"><img src="image/20161129152800.png" id="test2" class="swipe-img" alt="" width="100%"></div>
+        <div class="swipe-item"><img src="image/121033yzpgsjxo36ejq6ug.jpg" id="test3" class="swipe-img" alt="" width="100%"></div>
+        <div class="swipe-item"><img src="image/121040k7l1r6ulh634hw73.jpg" id="test4" class="swipe-img" alt="" width="100%"></div>
+    </div>
+</div>
+<script src="js/alloy_finger.js"></script>
+<script src="js/transform.js"></script>
+<script src="js/to.js"></script>
+<script>
+    var $el = document.querySelector('#swipe'),
+        $sel=$el.querySelectorAll('.swipe-item'),
+        $index = 0,
+        $width=$sel[0].getBoundingClientRect().width,
+        $size=$sel.length;
+    Transform($el);
+    new AlloyFinger($el, {
+        touchMove: function (evt) {
+            if (Math.abs(evt.deltaX) >= Math.abs(evt.deltaY)) {
+                evt.preventDefault();
+                var _translateX=$el.translateX+evt.deltaX;
+                if(_translateX<=0&&_translateX>=-$width*($size-1)){
+                    new To($el,"translateX",_translateX,10)
+                }
+            }
+        },
+        swipe: function (evt) {
+            var _translateX=$el.translateX;
+            var _deltaX=Math.abs(_translateX+$width*$index);
+            if(evt.deltaTime<=300||(evt.deltaTime>300&&_deltaX>30)){
+                    console.log(_deltaX)
+                    if (evt.direction === "Left") {
+                        if ($index < 3) {
+                            $index++;
+                            new To($el, "translateX", -$width * $index, 300, '', function () {
+//                        activeNav($index);
+                                var el=document.querySelector('#test'+$index);
+                                el.scaleX=1;
+                                el.scaleY=1;
+                                el.translateX=0;
+                                el.translateY=0;
+                            });
+                        }
+                    } else if (evt.direction === "Right") {
+                        if ($index > 0) {
+                            $index--;
+                            new To($el, "translateX", -$width * $index, 300, '', function () {
+//                        activeNav($index);
+                                var el=document.querySelector('#test'+($index+2));
+                                el.scaleX=1;
+                                el.scaleY=1;
+                                el.translateX=0;
+                                el.translateY=0;
+                            });
+                        }
+                    }
+            }else {
+                new To($el, "translateX", -$width * $index, 300, '', function () {
+//                        activeNav($index);
+                });
+            }
+        }
+    })
+    var els=document.querySelectorAll('.swipe-img');
+    [].forEach.call(els,function (item) {
+        console.dir(item.id);
+        var el=document.querySelector("#"+item.id);
+        var initScale = 1;
+        Transform(el);
+        new AlloyFinger(el,{
+            multipointStart: function (evt) {
+                document.querySelector('#multipointStart').innerHTML='multipointStart';
+                console.log(evt)
+                initScale=el.scaleX;
+            },
+            pinch: function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                document.querySelector('#pinch').innerHTML= 'pinch'+evt.scale;
+                el.scaleX = el.scaleY = initScale * evt.scale;
+            },
+            multipointEnd:function () {
+                To.stopAll();
+                document.querySelector('#multipointEnd').innerHTML='multipointEnd'+el.scaleX;
+                if (el.scaleX < 1) {
+                    new To(el, "scaleX", 1, 200);
+                    new To(el, "scaleY", 1, 200);
+                }
+                if (el.scaleX > 2) {
+                    new To(el, "scaleX", 2, 200);
+                    new To(el, "scaleY", 2, 200);
+                }
+            },
+            tap: function (evt) {
+                document.querySelector('#tap').innerHTML='tap';
+            },
+            pressMove: function (evt) {
+                var _scale=el.scaleX;
+                if (_scale >1) {
+                    var _width=document.documentElement.clientWidth, _rect=el.getBoundingClientRect();
+                    document.querySelector('#pressMove').innerHTML = 'pressMove..'+evt.deltaX+'..'+evt.deltaY;
+                    console.log("pressMove");
+                    var _dx=el.translateX+evt.deltaX,
+                        _dy=el.translateY+evt.deltaX;
+                    if(_rect.left+evt.deltaX<=0&&(_width-_rect.right-evt.deltaX<=0)){
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        el.translateX =_dx;
+                    }
+//                    el.translateY += evt.deltaY;
+                }
+            },
+            touchEnd:function (evt) {
+                var _scale=el.scaleX;
+                if (_scale >1) {
+                    var _width=document.documentElement.clientWidth,
+                        _rect=el.getBoundingClientRect(),
+                        _translateX=el.translateX;
+                    if(_rect.right<=_width){
+                        new To(el, "translateX", _translateX+_width-_rect.right, 200, '', function () {});
+                    }
+                    if(_rect.left>=0){
+                        new To(el, "translateX", _translateX-_rect.left, 200, '', function () {});
+                    }
+                }
+
+            }
+        })
+    })
+</script>
+</body>
+</html>
