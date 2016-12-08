@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="yes" name="apple-touch-fullscreen"/>
+    <meta content="telephone=no" name="format-detection"/>
+    <meta content="black" name="apple-mobile-web-app-status-bar-style">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>进出口追溯平台</title>
+    <link rel="stylesheet" href="./css/app.css">
+</head>
+<body>
+<!-- -->
+<div class="main" id="app" v-cloak>
+
+    <transition name="fade">
+        <toast :show="toasts.showToast" :msg="toasts.msg"></toast>
+    </transition>
+    <!--全屏图片轮播 start-->
+    <template v-if="headImages.show==true&&headImages.hasImages==true">
+        <div class="js-view">
+            <div class="swipe-item" id="fullSwipeScroll" :style="{width: 100*headImages.urls.length+'%'}">
+                <template v-for="item in headImages.urls">
+                    <div class="swipe-item-img">
+                        <img :src="item+'&w='+common.clientWidth" width="100%">
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+    <!--全屏图片轮播 end-->
+    <!--图层验证码 start-->
+    <template v-if="common.isShow == true">
+        <div class="tcyz-full">
+            <div class="tcyz-bk">
+                <div class="t-title">涂层认证</div>
+                <div class="t-prompt">请刮开涂层，输入4位二次认证码</div>
+                <input type="text" id="coatcode" v-model="common.coatcode">
+                <div class="btn-bk">
+                    <div class="btn-cancel" @click.stop="checkPanel(2)">取消</div>
+                    <div class="btn-ok" @click.stop="checkCode">确认</div>
+                </div>
+            </div>
+        </div>
+    </template>
+    <!--图层验证码 end-->
+    <!--头部start-->
+    <div class="header">
+        <!--图片轮巡 start-->
+        <div class="swipe">
+            <div class="swiper-wrapper">
+                <div class="swipe-item" id="swipeScroll"
+                     :style="{width: headImages.urls.length==1?'100%':94*headImages.urls.length+'%'}">
+                    <template v-for="item in headImages.urls">
+                        <div class="swipe-item-img border">
+                            <img :src="item+'&w='+common.clientWidth" width="100%">
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <template v-if="statusDesc&&statusDesc.value">
+                <a href="http://appserver.ciqca.com/appweb/valid.jsp" id="checkfx">
+                    <img :src="'./image/'+statusDesc.color+'.png'" height="28px" width="28px">
+                    <div class="jyzt" :style="{color: '#'+statusDesc.color}">{{statusDesc.value}}</div>
+                </a>
+            </template>
+        </div>
+        <!--图片轮巡 end-->
+        <!--产品名和星级 start-->
+        <div class="product" id="product">
+            <p>{{productName.value}}</p>
+            <template v-if="comment.showComment&&comment.commentStar">
+                <div class="star">
+                    <div class="level">
+                        <img src="./image/bad.png" width="63px" height="11px" class="bad">
+                        <div class="good" :style="{width: comment.commentStar + '%'}">
+                            <img class="nomax" src="./image/good.png" width="63px" height="11px">
+                        </div>
+                    </div>
+                    <span class="count">({{comment.commentLevel.commentcount}})</span>
+                </div>
+            </template>
+        </div>
+        <!--产品名和星级 end-->
+        <!--追溯信息 图文详情 企业介绍 start-->
+        <template v-if="imageTextInfo.showImagelTab==true || vendorIntro.showIntroTab==true">
+            <div class="tabs-block">
+                <div class="tabs" id="tabs" :class="{ fixed: common.fix==true }">
+                    <div class="tab" @click="common.isActive='info'"><span
+                            :class="{ selected: common.isActive=='info' }">追溯信息</span></div>
+                    <template v-if="imageTextInfo.showImagelTab==true">
+                        <div class="tab" @click="common.isActive='detail'"><span
+                                :class="{ selected: common.isActive=='detail' }">图文详情</span></div>
+                    </template>
+                    <template v-if="vendorIntro.showIntroTab==true">
+                        <div class="tab" @click="common.isActive='intro'"><span
+                                :class="{ selected: common.isActive=='intro' }">企业介绍</span></div>
+                    </template>
+                </div>
+            </div>
+        </template>
+        <template v-else>
+            <hr>
+        </template>
+    </div>
+    <!--头部 end-->
+    <!--主题内容 start-->
+    <div class="content">
+        <!--追溯信息-->
+        <template v-if="common.isActive=='info'">
+            <div class="panel" id="info">
+                <div class="padding-15">
+                    <!--追溯信息 详情-->
+                    <div class="info-detail">
+                        <p class="title">基本信息</p>
+                        <template v-for="item in baseInfo">
+                            <template v-if="item&&item.url">
+                                <p><label>{{item.text}}:</label><a :href="item.url"><span>{{item.value}}</span></a></p>
+                            </template>
+                            <template v-else>
+                                <p><label>{{item.text}}:</label><span>{{item.value}}</span></p>
+                            </template>
+                        </template>
+                        <hr>
+                        <template v-if="inspectInfo.hasInspectInfo">
+                            <p class="title bj-title">报检信息</p>
+                            <template v-for="item in inspectInfo.data">
+                                <template v-if="item&&item.url">
+                                    <p><label>{{item.text}}:</label><a :href="item.url"><span>{{item.value}}</span></a>
+                                    </p>
+                                </template>
+                                <template v-else>
+                                    <p><label>{{item.text}}:</label><span>{{item.value}}</span></p>
+                                </template>
+                            </template>
+                            <hr>
+                        </template>
+                        <div class="check-line">以上为进出口产品监管信息</div>
+                    </div>
+                    <!--用户评价-->
+                    <template v-if="bestComment.showComment==true">
+                        <a href="http://a.app.qq.com/o/simple.jsp?pkgname=com.zjuiti.acscan&g_f=991653" class="comment">
+                            <p class="c-title">用户评价</p>
+                            <!--<div class="user">
+                                <template v-if="bestComment.bestCommentStar">
+                                    <p class="rate-title">{{bestComment.bestCommentLevel.comment}}</p>
+                                    <div class="star">
+                                        <div class="level">
+                                            <img src="/image/bad.png" width="63px" height="11px" class="bad">
+                                            <div class="good" :style="{width: bestComment.bestCommentStar + '%'}">
+                                                <img class="nomax" src="/image/good.png" width="63px" height="11px">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="contact">
+                                        <span>{{bestComment.bestCommentLevel.phone}}</span>
+                                        <span>{{bestComment.bestCommentLevel.commentdate}}</span>
+                                    </div>
+                                </template>
+                                <p v-else class="rate-title">暂无评价</p>
+                            </div>-->
+                            <div class="all-btn">所有评价</div>
+                        </a>
+                    </template>
+                </div>
+                <hr>
+                <div class="added">
+                    <template v-if="saleInfo&&saleInfo.price">
+                        <template v-if="saleInfo.url">
+                            <a :href="saleInfo.url" class="tb-show">
+                                <span class="icon"
+                                      :style="{background: 'url(\'./image/icon/'+formatPlat+'.png\') 15px center/16px 16px no-repeat'}">这件商品在{{saleInfo.platform}}上有售卖</span>
+                                <span class="more"><span>&#65509;{{saleInfo.price}}</span> ></span>
+                            </a>
+                        </template>
+                        <template v-else>
+                            <a href="javascript:;" class="tb-show">
+                                <span class="icon price">建议零售价</span>
+                                <span class="more"><span>&#65509;{{saleInfo.price}}</span></span>
+                            </a>
+                        </template>
+                    </template>
+                    <template v-if="activityInfo&&activityInfo.url">
+                        <a :href="activityInfo.url" class="tb-show">
+                            <span class="icon hd">商家活动：{{activityInfo.activitydetail}}</span>
+                            <span class="more">></span>
+                        </a>
+                    </template>
+                    <!-- <div class="app">
+                         <img src="/image/app.png" width="100%">
+                     </div>-->
+                    <div class="app">
+                        <img src="./image/gzh.png" width="100%">
+                    </div>
+                </div>
+            </div>
+        </template>
+        <!--图文详情-->
+        <template v-if="common.isActive=='detail'">
+            <div class="panel" id="detail" v-html="imageTextInfo.data"></div>
+        </template>
+        <!--企业介绍-->
+        <template v-if="common.isActive=='intro'">
+            <div class="panel" id="intro">
+                <div id="load">
+                    <div class="intro-info">
+                        <img :src="vendorIntro.data.logourl" class="title-pic" width="100px">
+                        <div style="text-align: justify;" v-html="vendorIntro.data.content"></div>
+                    </div>
+                    <hr>
+                    <template v-if="vendorIntro.relprods.length>0">
+                        <div class="check-lines">该企业的已追溯产品</div>
+                        <div class="list-product">
+                            <template v-for="item in vendorIntro.relprods">
+                                <div class="list-item" @click="getProductInfo(item.url)">
+                                    <div class="list-item-image">
+                                        <img :src="item.image!=''?item.image:'./image/caapp.jpg'" width="100%" alt="">
+                                    </div>
+                                    <p>{{item.name}}</p>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+    <!--主题内容 end-->
+    <div class="footer">
+        <template v-if="common.isActive=='info'&&common.tcyz==true&&common.tagType!=1&&common.tagType!=4">
+            <template v-if="common.tagType==2">
+                <div class="tcyz" @click="checkPanel(1)">
+                    <img src="./image/tcyz.png" width="115px" height="57px">
+                </div>
+            </template>
+            <template v-else>
+                <div class="tcyz">您扫的码有芯片验证功能，请下载专用App。</div>
+            </template>
+        </template>
+        <template v-else>
+            <div class="self-intr">*本页面信息由企业自主提供</div>
+        </template>
+        <div class="footer-info">@进出口追溯平台 技术支持电话 0571-28130692</div>
+    </div>
+    <!--地图api start-->
+    <div id="allmap" style="width:1px;height:1px;display: none;"></div>
+    <!--地图api end-->
+</div>
+<script src="js/vue.min-2.1.0.js"></script>
+<script src="./js/vue-resource.min.js"></script>
+<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=5b2a55693f34cc7a2cf68359ea4e363c"></script>
+<script src="./js/alloy_finger.js"></script>
+<script>
+    Vue.component('toast', {
+        props: {
+            show: Boolean,
+            msg: String
+        },
+        template: '<div v-if="show==true" class="toast">{{msg}}</div>'
+    });
+    var env=2;
+    var app = new Vue({
+        el: '#app',
+        data: {
+            common: {
+                infoUrl: env==1?'http://appserver.cieway.com/ccodeapiJSONP.action':'http://appserver.ciqca.com/ccodeapiJSONP.action',//获取信息
+                checkUrl:  env==1?'http://appserver.cieway.com/tcodeapiJSONP.action':'http://appserver.ciqca.com/tcodeapiJSONP.action',//二次认证
+                locationUrl:  env==1?'http://appserver.cieway.com/addScanpositionapi.action':'http://appserver.ciqca.com/addScanpositionapi.action',//上传地理位置
+                authCodes: location.search.split('=')[1],//二维码字符串
+                coatcode: '',
+                clientHeight: document.documentElement.clientHeight,//屏幕高度
+                clientWidth: document.documentElement.clientWidth,
+                offsetTop: 0,
+                fix: false,
+                isActive: 'info',
+                tcyz: true,
+                isShow: false,
+                tagType: 1
+            },
+            status: {
+                fullSwipeIndex: 0,
+                swipeIndex: 0,
+                swipeLength: 1
+            },
+            toasts: {
+                showToast: false,
+                msg: ''
+            },
+            result: {},//所有信息
+            headImages: {
+                urls: ['./image/caapp.jpg?1=1'],
+                show: false,//全屏轮播是否显示
+                hasImages: false//是否有头部轮播图片
+            },
+            productName: {}, /*产品名称*/
+            statusDesc: {}, /*检验状态*/
+            comment: {//总体评价
+                showComment: true,
+                commentLevel: {},
+                commentStar: ''
+            },
+            baseInfo: [],//基本信息
+            inspectInfo: {//报检信息
+                hasInspectInfo: false,
+                data: []
+            },
+            bestComment: {//用户评价
+                showComment: true,
+                bestCommentLevel: {},
+                bestCommentStar: ''
+            },
+            saleInfo: {},//电商 营销
+            activityInfo: {},//活动
+            vendorIntro: {//企业介绍
+                showIntroTab: false,
+                data: {},
+                index: 0,
+                relprods: []
+            },
+            imageTextInfo: {
+                data: '',
+                showImagelTab: false
+            }
+        },
+        mounted: function () {
+            window.addEventListener('scroll', this.onLoadMore, false);
+        },
+        created: function () {
+            this.getInfo();
+            this.getLocation();
+        },
+        methods: {
+            onPan: function () {
+                var self = this;
+                var _isFiexed = self.common.offsetTop - (document.documentElement.scrollTop || document.body.scrollTop);
+                if (_isFiexed > 0) {
+                    self.common.fix = false;
+                } else {
+                    self.common.fix = true;
+                }
+            },//tabs监听事件
+            onLoadMore: function () {
+                var _scrollTop = document.body.scrollTop,
+                    _scrollHeight = document.documentElement.scrollHeight, self = this;
+                if (self.common.isActive == 'intro' && self.vendorIntro.data.relprods.length > self.vendorIntro.relprods.length) {
+                    if (_scrollTop + self.common.clientHeight + 50 >= _scrollHeight) {
+                        self.vendorIntro.index++;
+                        var _newArr = self.vendorIntro.data.relprods.slice(0, ( self.vendorIntro.index + 1) * 6);
+                        self.vendorIntro.relprods = _newArr;
+                    }
+                }
+
+            },
+            toast: function (msg) {
+                this.toasts.showToast = true;
+                this.toasts.msg = msg;
+                var self = this;
+                setTimeout(function () {
+                    self.toasts.showToast = false;
+                }, 2000);
+            },
+            checkPanel: function (flag) {
+                if (flag == 1) {
+                    document.body.style.overflow = 'hidden';
+                    this.common.isShow = true;
+                } else {
+                    document.body.style.overflow = 'auto';
+                    this.common.isShow = false;
+                }
+
+            },
+            checkCode: function () {
+                if (this.common.coatcode == '') {
+                    this.toast('认证码不能为空！');
+                    return false
+                }
+                var _data = {
+                    authCode: this.common.authCodes,
+                    coatCode: this.common.coatcode
+                };
+                this.common.isShow = false;
+                document.body.style.overflow = 'auto';
+                this.common.coatcode = '';
+                this.$http.jsonp(this.common.checkUrl, {
+                    callbacks: 'coatCallback',
+                    params: _data
+                }, {
+                    headers: {},
+                    emulateJSON: true
+                }).then(function (response) {
+                    var _result = JSON.parse(response.data);
+                    if (_result.Result == 0) {
+                        this.toast(_result.SaleInfo[0].value);
+                    } else {
+                        this.toast(_result.FailInfo);
+                    }
+                }, function () {
+                })
+            },
+            swipeScroll: function (el) {
+                var self = this;
+                Transform(el);
+                new AlloyFinger(el, {
+                    touchMove: function (evt) {
+                        if (Math.abs(evt.deltaX) >= Math.abs(evt.deltaY)) {
+                            evt.preventDefault();
+                        }
+                    },
+                    tap: function () {
+                        document.body.style.overflow = 'hidden';
+                        self.headImages.show = true;
+                        self.$nextTick(function () {
+                            self.fullSwipeScroll(document.getElementById('fullSwipeScroll'));
+                        });
+                    },
+                    swipe: function (evt) {
+                        var _width = el.querySelectorAll('.swipe-item-img')[0].getBoundingClientRect().width;
+                        if (self.status.swipeLength > 1) {
+                            if (evt.direction === "Left") {
+                                if (self.status.swipeIndex < self.status.swipeLength - 1) {
+                                    self.status.swipeIndex++;
+                                    new To(el, "translateX", -_width * self.status.swipeIndex, 500);
+                                }
+                            } else if (evt.direction === "Right") {
+                                if (self.status.swipeIndex > 0) {
+                                    self.status.swipeIndex--;
+                                    new To(el, "translateX", -_width * self.status.swipeIndex, 500);
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            fullSwipeScroll: function (el) {
+                var self = this;
+                Transform(el);
+                var _width = el.querySelectorAll('.swipe-item-img')[0].getBoundingClientRect().width;
+                new To(el, "translateX", -_width * self.status.swipeIndex, 10);
+                self.status.fullSwipeIndex=self.status.swipeIndex;
+                new AlloyFinger(el, {
+                    touchMove: function (evt) {
+                        if (Math.abs(evt.deltaX) >= Math.abs(evt.deltaY)) {
+                            evt.preventDefault();
+                        }
+                    },
+                    tap: function () {
+                        document.body.style.overflow = 'auto';
+                        self.headImages.show = false;
+                    },
+                    swipe: function (evt) {
+                        if (self.status.swipeLength > 1) {
+                            if (evt.direction === "Left") {
+                                if (self.status.fullSwipeIndex < self.status.swipeLength - 1) {
+                                    self.status.fullSwipeIndex++;
+                                    new To(el, "translateX", -_width * self.status.fullSwipeIndex, 500);
+                                }
+                            } else if (evt.direction === "Right") {
+                                if (self.status.fullSwipeIndex > 0) {
+                                    self.status.fullSwipeIndex--;
+                                    new To(el, "translateX", -_width * self.status.fullSwipeIndex, 500);
+                                }
+                            }
+                        }
+                    }
+                });
+            },
+            getInfo: function () {//获取所有信息
+                this.$http.jsonp(this.common.infoUrl, {
+                    callbacks: 'callback',
+                    params: {authCode: this.common.authCodes},
+                    emulateJSON: true
+                }).then(function (response) {
+                    var _data = response.data;
+                    if (Object.prototype.toString.call(response.data) == '[object String]') {
+                        _data = JSON.parse(response.data);
+                    }
+                    if (_data.Result == 0) {
+                        this.result = _data;
+                        this.common.tagType = _data.TagType;
+                        if (_data.ProdPics.length > 0) {/*头部轮播图片*/
+                            this.headImages.urls = _data.ProdPics;
+                            this.headImages.hasImages = true;
+                            this.status.swipeLength = this.headImages.urls.length;
+                        }
+                        this.$nextTick(function () {
+//                            if (this.headImages.urls.length > 1) {
+                            this.swipeScroll(document.getElementById("swipeScroll"));
+//                            }
+                        });
+                        /*产品名称和检验状态*/
+                        var _base = _data.BaseInfo;
+                        for (var i = 0, len = _base.length; i < len; i++) {
+                            if (_base[i].key == 'ProductName') {
+                                this.productName = _base[i];
+                            }
+                            if (_base[i].key == 'StatusDesc') {
+                                this.statusDesc = _base[i];
+                            }
+                        }
+                        /* 总体评价commentcount*/
+                        var _comment = _data.AddService.CommentLevel;
+                        if (_comment && _comment.levelscore) {
+                            this.comment.commentLevel = _comment;
+                            this.comment.commentStar = (_comment.levelscore / 5) * 100;
+                        }
+                        /*基本信息*/
+                        var _baseInfo = _data.ProductInfo[0].data;
+                        this.baseInfo = _baseInfo.filter(function (item) {
+                            return item.key != 'CNProofSample';
+                        });
+                        /*报检信息*/
+                        var _inspectInfo = _data.ProductInfo[1].data;
+                        this.inspectInfo.hasInspectInfo = _inspectInfo.length > 1 ? true : false;//是否有报检信息
+                        if (this.inspectInfo.hasInspectInfo) {
+                            this.inspectInfo.data = _inspectInfo;
+                        } else {
+                            _inspectInfo[0]?this.baseInfo.push(_inspectInfo[0]):'';
+                        }
+                        /*用户评价*/
+                        var _bestComment = _data.AddService.BestComment;
+                        if (_bestComment && _bestComment.levelscore) {
+                            this.bestComment.bestCommentLevel = _bestComment;
+                            this.bestComment.bestCommentStar = (_bestComment.levelscore / 5) * 100;
+                        }
+                        this.saleInfo = _data.AddService.SaleInfo;//电商 营销
+                        this.activityInfo = _data.AddService.ActivityInfo;//活动
+
+                        var _vendorIntro = _data.AddService.VendorIntro;//企业介绍
+                        this.vendorIntro.showIntroTab = _vendorIntro && _vendorIntro.name ? true : false;//企业tabs
+                        if (this.vendorIntro.showIntroTab) {//如果企业tabs有数据
+                            this.vendorIntro.data = _vendorIntro;
+                            if (_vendorIntro && _vendorIntro.relprods.length > 0)
+                                this.vendorIntro.relprods = this.vendorIntro.data.relprods.slice(this.vendorIntro.index * 6, (this.vendorIntro.index + 1) * 6);//企业介绍产品
+                        }
+                        this.imageTextInfo.data = _data.AddService.ImageTextInfo;//图文详情
+                        this.imageTextInfo.showImagelTab = (this.imageTextInfo.data != '');//图文tabs
+                        this.$nextTick(function () {
+                            var self = this;
+                            var _product = document.getElementById('product');
+                            this.common.offsetTop = _product.offsetTop + _product.offsetHeight + 10;
+                            window.addEventListener('scroll', this.onPan, false);
+                            new AlloyFinger(this.$el, {
+                                pressMove: function (e) {
+                                    self.onPan();
+                                }
+                            })
+                        });
+                    } else {
+                        this.toast(_data.FailInfo);
+                        setTimeout(function () {
+                            document.body.style.display = 'none';
+                        }, 2100)
+                    }
+                }, function () {
+                })
+            },
+            getLocation: function () {
+                var self = this;
+                var map, geolocation;
+                map = new AMap.Map('allmap', {resizeEnable: true});
+                map.plugin('AMap.Geolocation', function () {
+                    geolocation = new AMap.Geolocation({
+                        enableHighAccuracy: true,//是否使用高精度定位，默认:true
+                        timeout: 10000,          //超过10秒后停止定位，默认：无穷大
+                        buttonOffset: new AMap.Pixel(10, 20),//定位按钮与设置的停靠位置的偏移量，默认：Pixel(10, 20)
+                        zoomToAccuracy: true,      //定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+                        buttonPosition: 'RB'
+                    });
+                    map.addControl(geolocation);
+                    geolocation.getCurrentPosition();
+                    AMap.event.addListener(geolocation, 'complete', function (data) {
+                        AMap.service('AMap.Geocoder', function () {//回调函数
+                            //实例化Geocoder
+                            var geocoder = new AMap.Geocoder({
+                                city: "010"//城市，默认：“全国”
+                            });
+                            //逆地理编码
+                            var lnglatXY = [data.position.getLng(), data.position.getLat()];//地图上所标点的坐标
+                            geocoder.getAddress(lnglatXY, function (status, result) {
+                                if (status === 'complete' && result.info === 'OK') {
+                                    //获得了有效的地址信息:
+                                    var _json = JSON.stringify({
+                                        "longitude": data.position.getLng(),
+                                        "latitude": data.position.getLat(),
+                                        "uposition": result.regeocode.formattedAddress,
+                                        "authCode": self.common.authCodes
+                                    });
+                                    self.$http.post(self.common.locationUrl, {}, {
+                                        headers: {'Client-Flag': '1'},
+                                        emulateJSON: true,
+                                        params: {
+                                            json: _json
+                                        }
+                                    }).then(function (response) {
+                                        console.log(response);
+                                    });
+                                } else {
+                                    //获取地址失败
+                                }
+                            });
+                        });
+                    });//返回定位信息
+                    AMap.event.addListener(geolocation, 'error', function (data) {
+                        console.log(data)
+                    });      //返回定位出错信息
+                });
+            },//获取地址坐标
+            getProductInfo: function (url) {
+                this.common.isActive = 'info';
+                this.$http.jsonp(url, {
+                    callbacks: 'callback',
+                    emulateJSON: true
+                }).then(function (response) {
+                    document.body.scrollTop = 0;
+                    var _data = response.data;
+                    if (Object.prototype.toString.call(response.data) == '[object String]') {
+                        _data = JSON.parse(response.data);
+                    }
+                    if (_data.Result == 0) {
+                        this.result = _data;
+                        this.common.tagType = 1;
+                        if (_data.ProdPics.length > 0) {/*头部轮播图片*/
+                            this.headImages.urls = _data.ProdPics;
+                            this.headImages.hasImages = true;
+                            this.status.swipeLength = this.headImages.urls.length;
+                        } else {
+                            this.status.swipeLength = 1;
+                            this.headImages.urls = ['./image/caapp.jpg?1=1'];
+                        }
+                        this.status.swipeIndex = 0;
+                        this.status.fullSwipeIndex = 0;
+                        new To(document.getElementById("swipeScroll"), "translateX", 0, 10);
+                        /*产品名称和检验状态*/
+                        var _base = _data.BaseInfo;
+                        for (var i = 0, len = _base.length; i < len; i++) {
+                            if (_base[i].key == 'ProductName') {
+                                this.productName = _base[i];
+                            }
+                        }
+                        this.statusDesc = {};
+                        /* 总体评价commentcount*/
+                        var _comment = {};
+                        if (_comment && _comment.levelscore) {
+                            this.comment.commentLevel = _comment;
+                            this.comment.commentStar = (_comment.levelscore / 5) * 100;
+                        }
+                        /*基本信息*/
+                        var _baseInfo = _data.ProductInfo[0].data;
+                        this.baseInfo = _baseInfo.filter(function (item) {
+                            return item.key != 'CNProofSample';
+                        });
+                        /*报检信息*/
+                        var _inspectInfo = [];
+                        this.inspectInfo.hasInspectInfo = false;//是否有报检信息
+                        this.inspectInfo.data = _inspectInfo;
+
+                        /*用户评价*/
+                        var _bestComment = {};
+                        this.bestComment.showComment = false;
+                        if (_bestComment && _bestComment.levelscore) {
+                            this.bestComment.bestCommentLevel = _bestComment;
+                            this.bestComment.bestCommentStar = (_bestComment.levelscore / 5) * 100;
+                        }
+                        this.saleInfo = _data.AddService.SaleInfo;//电商 营销
+                        this.activityInfo = _data.AddService.ActivityInfo;//活动
+
+                        var _vendorIntro = _data.AddService.VendorIntro;//企业介绍
+                        this.vendorIntro.showIntroTab = _vendorIntro && _vendorIntro.name ? true : false;//企业tabs
+                        if (this.vendorIntro.showIntroTab) {//如果企业tabs有数据
+                            this.vendorIntro.data = _vendorIntro;
+                            if (_vendorIntro && _vendorIntro.relprods.length > 0)
+                                this.vendorIntro.relprods = this.vendorIntro.data.relprods.slice(this.vendorIntro.index * 6, (this.vendorIntro.index + 1) * 6);//企业介绍产品
+                        }
+                        this.imageTextInfo.data = _data.AddService.ImageTextInfo;//图文详情
+                        this.imageTextInfo.showImagelTab = (this.imageTextInfo.data != '');//图文tabs
+                        this.$nextTick(function () {
+                            var self = this;
+                            var _product = document.getElementById('product');
+                            this.common.offsetTop = _product.offsetTop + _product.offsetHeight + 10;
+                            window.addEventListener('scroll', this.onPan, false);
+                            new AlloyFinger(this.$el, {
+                                pressMove: function (e) {
+                                    self.onPan();
+                                }
+                            })
+                        });
+                    } else {
+                        this.toast(_data.FailInfo);
+                        setTimeout(function () {
+                            document.body.style.display = 'none';
+                        }, 2100)
+                    }
+                }, function () {
+                })
+            }
+        },
+        computed: {
+            formatPlat: function () {
+                var _value = this.saleInfo.platform;
+                switch (_value) {
+                    case '京东':
+                        return 'jd';
+                    case '聚美':
+                        return 'jm';
+                    case '考拉':
+                        return 'kl';
+                    case '苏宁':
+                        return 'sn';
+                    case '淘宝':
+                        return 'tb';
+                    case '天猫':
+                        return 'tm';
+                    case '唯品会':
+                        return 'wph';
+                    case '一号店':
+                        return 'yhd';
+                    default:
+                        return 'tb';
+                }
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
+
