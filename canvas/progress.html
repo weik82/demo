@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" width="200" height="200"></canvas>
+<script>
+    let canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        w = canvas.width,
+        h = canvas.height,
+        progress = 0;
+    class Text {
+        constructor(ctx, w, h, style, font) {
+            this.ctx = ctx;
+            this.x = w / 2;
+            this.y = h / 2;
+            this.style = style;
+            this.font = font;
+        }
+
+        draw(n) {
+            this.ctx.save();
+            this.ctx.fillStyle = this.style;
+            this.ctx.font = this.font;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.fillText(n.toFixed(0) + '%', this.x, this.y);
+            this.ctx.restore();
+        }
+    }
+    class Circle {
+        constructor(ctx, w, h, style, width) {
+            this.ctx = ctx;
+            this.x = w / 2;
+            this.y = h / 2;
+            this.style = style;
+            this.width = width;
+            this.rad = Math.PI * 2 / 100;
+        }
+
+        draw(n) {
+            this.ctx.save();
+            context.beginPath();
+            this.ctx.strokeStyle = this.style;
+            this.ctx.lineWidth = this.width;
+            if (n) {
+                this.ctx.arc(this.x, this.y, 80, -Math.PI / 2, -Math.PI / 2 + this.rad * n, false);
+            } else {
+                this.ctx.arc(this.x, this.y, 80, 0, Math.PI * 2, false);
+            }
+            this.ctx.stroke();
+            this.ctx.closePath();
+            this.ctx.restore();
+        }
+    }
+
+    let text = new Text(context, w, h, '#F47C7C', '40px Arial');
+    let oCircle = new Circle(context, w, h, '#A5DEF1', 15);
+    let iCircle = new Circle(context, w, h, '#4499ff', 15);
+    (function run() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        text.draw(progress);
+        oCircle.draw();
+        iCircle.draw(progress);
+        if (progress > 100) progress = 0;
+        progress += 0.1;
+        requestAnimationFrame(run);
+    })()
+</script>
+</body>
+</html>

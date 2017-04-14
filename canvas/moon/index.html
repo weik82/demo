@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>moon</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script src="js/Moon.js"></script>
+<script src="js/Stars.js"></script>
+<script src="js/Meteor.js"></script>
+<script>
+    let canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d'),
+        width = canvas.width = window.innerWidth,
+        height = canvas.height = window.innerHeight,
+        moon = new Moon(ctx, width, height),
+        start = new Stars(ctx, width, height, 200),
+        meteors = [],
+        count = 0;
+    let meteorGenerator = function () {
+        //x位置偏移，以免经过月亮
+        let x = Math.random() * width + 800;
+        meteors.push(new Meteor(ctx, x, height));
+        //每隔随机时间，生成新流星
+        setTimeout(() => {
+            meteorGenerator()
+        }, Math.random() * 2000)
+    };
+    meteorGenerator();
+    (function init() {
+        count++;
+        if (count % 20 == 0) {
+            count = 0;
+            start.blink();
+        }
+        moon.draw();
+        start.draw();
+        meteors.forEach(function (meteor, index, arr) {
+            //如果流星离开视野之内，销毁流星实例，回收内存
+            if (meteor.flow()) {
+                meteor.draw()
+            } else {
+                arr.splice(index, 1)
+            }
+        });
+        requestAnimationFrame(init);
+    })
+    ();
+
+</script>
+</body>
+</html>
