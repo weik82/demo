@@ -26,7 +26,7 @@
 <script src="js/transform.js"></script>
 <script src="js/to.js"></script>
 <script>
-    var $el = document.querySelector('#swipe'),
+    let $el = document.querySelector('#swipe'),
         $sel=$el.querySelectorAll('.swipe-item'),
         $index = 0,
         $width=$sel[0].getBoundingClientRect().width,
@@ -36,15 +36,15 @@
         touchMove: function (evt) {
             if (Math.abs(evt.deltaX) >= Math.abs(evt.deltaY)) {
                 evt.preventDefault();
-                var _translateX=$el.translateX+evt.deltaX;
+                let _translateX=$el.translateX+evt.deltaX;
                 if(_translateX<=0&&_translateX>=-$width*($size-1)){
                     new To($el,"translateX",_translateX,10)
                 }
             }
         },
         swipe: function (evt) {
-            var _translateX=$el.translateX;
-            var _deltaX=Math.abs(_translateX+$width*$index);
+            let _translateX=$el.translateX;
+            let _deltaX=Math.abs(_translateX+$width*$index);
             if(evt.deltaTime<=300||(evt.deltaTime>300&&_deltaX>30)){
                     console.log(_deltaX)
                     if (evt.direction === "Left") {
@@ -52,7 +52,7 @@
                             $index++;
                             new To($el, "translateX", -$width * $index, 300, '', function () {
 //                        activeNav($index);
-                                var el=document.querySelector('#test'+$index);
+                                let el=document.querySelector('#test'+$index);
                                 el.scaleX=1;
                                 el.scaleY=1;
                                 el.translateX=0;
@@ -64,7 +64,7 @@
                             $index--;
                             new To($el, "translateX", -$width * $index, 300, '', function () {
 //                        activeNav($index);
-                                var el=document.querySelector('#test'+($index+2));
+                                let el=document.querySelector('#test'+($index+2));
                                 el.scaleX=1;
                                 el.scaleY=1;
                                 el.translateX=0;
@@ -79,11 +79,11 @@
             }
         }
     })
-    var els=document.querySelectorAll('.swipe-img');
+    let els=document.querySelectorAll('.swipe-img');
     [].forEach.call(els,function (item) {
         console.dir(item.id);
-        var el=document.querySelector("#"+item.id);
-        var initScale = 1;
+        let el=document.querySelector("#"+item.id);
+        let initScale = 1;
         Transform(el);
         new AlloyFinger(el,{
             multipointStart: function (evt) {
@@ -113,12 +113,12 @@
                 document.querySelector('#tap').innerHTML='tap';
             },
             pressMove: function (evt) {
-                var _scale=el.scaleX;
+                let _scale=el.scaleX;
                 if (_scale >1) {
-                    var _width=document.documentElement.clientWidth, _rect=el.getBoundingClientRect();
+                    let _width=document.documentElement.clientWidth, _rect=el.getBoundingClientRect();
                     document.querySelector('#pressMove').innerHTML = 'pressMove..'+evt.deltaX+'..'+evt.deltaY;
                     console.log("pressMove");
-                    var _dx=el.translateX+evt.deltaX,
+                    let _dx=el.translateX+evt.deltaX,
                         _dy=el.translateY+evt.deltaX;
                     if(_rect.left+evt.deltaX<=0&&(_width-_rect.right-evt.deltaX<=0)){
                         evt.stopPropagation();
@@ -129,9 +129,9 @@
                 }
             },
             touchEnd:function (evt) {
-                var _scale=el.scaleX;
+                let _scale=el.scaleX;
                 if (_scale >1) {
-                    var _width=document.documentElement.clientWidth,
+                    let _width=document.documentElement.clientWidth,
                         _rect=el.getBoundingClientRect(),
                         _translateX=el.translateX;
                     if(_rect.right<=_width){
