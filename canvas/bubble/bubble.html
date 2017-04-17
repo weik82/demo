@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bubble</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script src="js/requestAnimationFrame.js"></script>
+<script src="js/bubble.js"></script>
+<script>
+    let canvas = document.getElementById("canvas"),
+        ctx = canvas.getContext("2d"),
+        w = canvas.width = window.innerWidth,
+        h = canvas.height = window.innerHeight,
+        num = 50,            			 // 个数
+        probability = 0.1,		     // 如果数量小于num，有这些几率添加一个新的
+        attributes = {
+            radius_min: 1,   			     // 初始半径最小值
+            radius_max: 2,   			     // 初始半径最大值
+            radius_add_min: .3,               // 半径增加最小值
+            radius_add_max: .5,               // 半径增加最大值
+            opacity_min: 0.3,                 // 初始透明度最小值
+            opacity_max: 0.5, 				 // 初始透明度最大值
+            opacity_prev_min: .003,            // 透明度递减值最小值
+            opacity_prev_max: .005,            // 透明度递减值最大值
+            light_min: 40,                 // 颜色亮度最小值
+            light_max: 70,                 // 颜色亮度最大值
+        },
+        style_color = findRandom(0, 360),
+        bubbles = [];
+
+    function findRandom(a, b) {
+        return Math.random() * (b - a) + a;
+    }
+    function start() {
+        style_color += .1;
+        ctx.fillStyle = 'hsl(' + style_color + ',100%,97%)';
+        ctx.fillRect(0, 0, w, h);
+        if (bubbles.length < num && Math.random() < probability) {
+            bubbles.push(new Bubble(ctx, w, h, attributes));
+        }
+        bubbles.forEach(function (bubble) {
+            bubble.setColor(style_color);
+            bubble.draw();
+        });
+        window.requestAnimationFrame(start);
+    }
+    start();
+</script>
+</body>
+</html>
