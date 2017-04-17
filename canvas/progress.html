@@ -11,29 +11,34 @@
         context = canvas.getContext('2d'),
         w = canvas.width,
         h = canvas.height,
-        progress = 0;
+        option = {
+            fontColor: '#F47C7C',
+            fontSize: '40px',
+            fontFamily: 'Arial',
+            lineWidth: 20,
+            lineColor: '#b5DEFf',
+            progressColor: '#4499ff'
+        };
     class Text {
-        constructor(ctx, w, h, style, font) {
-            this.ctx = ctx;
+        constructor(w, h, style, font) {
             this.x = w / 2;
             this.y = h / 2;
             this.style = style;
             this.font = font;
         }
 
-        draw(n) {
-            this.ctx.save();
-            this.ctx.fillStyle = this.style;
-            this.ctx.font = this.font;
-            this.ctx.textAlign = 'center';
-            this.ctx.textBaseline = 'middle';
-            this.ctx.fillText(n.toFixed(0) + '%', this.x, this.y);
-            this.ctx.restore();
+        draw(ctx, n) {
+            ctx.save();
+            ctx.fillStyle = this.style;
+            ctx.font = this.font;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(n.toFixed(0) + '%', this.x, this.y);
+            ctx.restore();
         }
     }
     class Circle {
-        constructor(ctx, w, h, style, width) {
-            this.ctx = ctx;
+        constructor(w, h, style, width) {
             this.x = w / 2;
             this.y = h / 2;
             this.style = style;
@@ -41,34 +46,72 @@
             this.rad = Math.PI * 2 / 100;
         }
 
-        draw(n) {
-            this.ctx.save();
+        draw(ctx, n = undefined) {
+            ctx.save();
             context.beginPath();
-            this.ctx.strokeStyle = this.style;
-            this.ctx.lineWidth = this.width;
+            ctx.strokeStyle = this.style;
+            ctx.lineWidth = this.width;
             if (n) {
-                this.ctx.arc(this.x, this.y, 80, -Math.PI / 2, -Math.PI / 2 + this.rad * n, false);
+                ctx.arc(this.x, this.y, 80, -Math.PI / 2, -Math.PI / 2 + this.rad * n, false);
             } else {
-                this.ctx.arc(this.x, this.y, 80, 0, Math.PI * 2, false);
+                ctx.arc(this.x, this.y, 80, 0, Math.PI * 2, false);
             }
-            this.ctx.stroke();
-            this.ctx.closePath();
-            this.ctx.restore();
+            ctx.stroke();
+            ctx.closePath();
+            ctx.restore();
         }
     }
+    class Progress {
+        constructor(ctx, w, h, option, progress = 0) {
+            this.now = null;
+            this.ctx = ctx;
+            this.w = w;
+            this.h = h;
+            this.progress = progress;
+            this.text = null;
+            this.outer = null;
+            this.inner = null;
+            this.init(option);
+        }
 
-    let text = new Text(context, w, h, '#F47C7C', '40px Arial');
-    let oCircle = new Circle(context, w, h, '#A5DEF1', 15);
-    let iCircle = new Circle(context, w, h, '#4499ff', 15);
-    (function run() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        text.draw(progress);
-        oCircle.draw();
-        iCircle.draw(progress);
-        if (progress > 100) progress = 0;
-        progress += 0.1;
-        requestAnimationFrame(run);
-    })()
+        init(option) {
+            this.text = new Text(this.w, this.h, option.fontColor, option.fontSize + ' ' + option.fontFamily);
+            this.inner = new Circle(this.w, this.h, option.progressColor, option.lineWidth);
+            this.outer = new Circle(this.w, this.h, option.lineColor, option.lineWidth);
+        }
+
+        clearRect() {
+            this.ctx.clearRect(0, 0, this.w, this.h)
+        }
+
+        draw() {
+            this.text.draw(this.ctx, this.progress);
+            this.outer.draw(this.ctx);
+            this.inner.draw(this.ctx, this.progress);
+        }
+
+        addProgress() {
+            this.progress += .1;
+        }
+
+        run() {
+            let time = new Date().getTime();
+            if (this.now) {
+                let sub = time - this.now;
+                console.log(1000 / sub);
+            }
+            this.now = time;
+            this.clearRect();
+            this.draw();
+            if (this.progress < 100) {
+                this.addProgress();
+                requestAnimationFrame(this.run.bind(this));
+            } else {
+                console.log('finished')
+            }
+        }
+    }
+    new Progress(context, w, h, option, 10).run()
 </script>
 </body>
 </html>
