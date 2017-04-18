@@ -1,16 +1,19 @@
 class Meteor {
-    constructor(ctx, x, h) {
+    constructor(ctx, x, h, option) {
         this.ctx = ctx;
         this.x = x;
         this.y = 0;
         this.h = h;
-        this.vx = -(4 + Math.random() * 4);
-        this.vy = -this.vx;
-        this.len = Math.random() * 300 + 500
+        this.vx = -Meteor.randomInRange(option.min, option.max);
+        this.vy = Meteor.randomInRange(option.min, option.max);
+        this.len = Meteor.randomInRange(option.minLen, option.maxLen);
+    }
+
+    static randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
     }
 
     flow() {
-        //判定流星出界
         if (this.x < -this.len || this.y > this.h + this.len) {
             return false
         }
@@ -21,7 +24,6 @@ class Meteor {
 
     draw() {
         let ctx = this.ctx,
-            //径向渐变，从流星头尾圆心，半径越大，透明度越高
             gra = ctx.createRadialGradient(
                 this.x, this.y, 0, this.x, this.y, this.len);
 

@@ -1,34 +1,32 @@
 class Moon {
     constructor(ctx, width, height) {
         this.ctx = ctx;
-        this.width = width;
-        this.height = height;
+        this.w = width;
+        this.h = height;
     }
 
     draw() {
-        let ctx = this.ctx,
-            flag = this.width > this.height, x, y, r, r1;
+        let flag = this.w > this.h, x, y, r, r1;
         if (flag) {
-            x = this.height * .4;
-            y = this.width * .2;
-            r = this.height * .1;
-            r1 = this.width;
+            x = this.w * .2;
+            y = this.h * .3;
+            r = this.h * .1;
+            r1 = this.w;
         } else {
-            x = this.width * .4;
-            y = this.height * .2;
-            r = this.width * .1;
-            r1 = this.height;
+            x = this.w * .3;
+            y = this.h * .4;
+            r = this.w * .1;
+            r1 = this.h;
         }
-        let gradient = ctx.createRadialGradient(x, y, r, x, y, r1);
-        //径向渐变
+        let gradient = this.ctx.createRadialGradient(x, y, r, x, y, r1);
         gradient.addColorStop(0, 'rgb(255,255,255)');
         gradient.addColorStop(0.01, 'rgb(70,70,80)');
-        gradient.addColorStop(0.2, 'rgb(40,40,50)');
-        gradient.addColorStop(0.4, 'rgb(20,20,30)');
+        gradient.addColorStop(0.22, 'rgb(40,40,50)');
+        gradient.addColorStop(0.5, 'rgb(20,20,30)');
         gradient.addColorStop(1, 'rgb(0,0,10)');
-        ctx.save();
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, this.width, this.height);
-        ctx.restore();
+        this.ctx.save();
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.w, this.h);
+        this.ctx.restore();
     }
 }
