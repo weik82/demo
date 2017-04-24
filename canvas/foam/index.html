@@ -174,7 +174,7 @@
             $.globalCompositeOperation = 'lighter';
         });
 
-        window.addEventListener('mousemove', function (e) {
+        window.addEventListener('click', function (e) {
             for (let i = 0; i < world.objects.length; i++) {
                 if ((world.objects[i] instanceof Bubble) && (e.clientX > world.objects[i].x - world.objects[i].radius && e.clientX < world.objects[i].x + world.objects[i].radius && e.clientY < world.objects[i].y + world.objects[i].radius && e.clientY > world.objects[i].y - world.objects[i].radius)) {
                     world.objects[i].pop(world);

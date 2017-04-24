@@ -36,7 +36,6 @@ function downPic(url, callback) {
     superAgent.get(url.href)
         .end(function (err, res) {
             if (err) throw err;
-            fs.re
             fs.writeFile(path + url.title, res.body, function (error) {
                 if (error) throw error;
                 console.log(url.title + '下载成功!');
