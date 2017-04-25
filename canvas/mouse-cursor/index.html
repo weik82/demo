@@ -102,8 +102,8 @@
 <script src="../util/requestAnimationFrame.js"></script>
 <script>
     let button = document.querySelector('button');
-    let canvas = document.getElementById("c");
-    let ctx = canvas.getContext("2d");
+    let canvas = document.getElementById('c');
+    let ctx = canvas.getContext('2d');
     let w, h, cx, cy;
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
@@ -111,19 +111,19 @@
     cy = h / 2;
     let y = [];
     let b = {
-        n: 100,
-        bc: '#000',   //  背景颜色
-        r: 0.9,
-        o: 0.05,
-        a: 1,
-        s: 20,
+        n: 100,//数量
+        bc: '#000',//背景颜色
+        r: 0.9,//半径
+        o: 0.001,//不透明度减量
+        a: 1,//速度增量
+        s: 20,//y速度增量
     };
     let bx = 0, by = 0, vx = 0, vy = 0;
     let td = 0;
     let p = 0;
     let hs = 0;
     let color = Math.random() * 360;
-    let current = 'type1';
+    let current = 'type9';
     let draw = {
         'type1': function () {
             color += .1;
@@ -345,25 +345,23 @@
             ctx.fillStyle = b.bc;
             ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = 'hsl(' + color + ',100%,80%)';
-            if (cx % 4 === 0) {
+           /* if (cx % 4 === 0) {
                 cx += 1;
             } else if (cx % 4 === 2) {
                 cx -= 1
-            }
-            else if (cx % 4 === 3) {
+            } else if (cx % 4 === 3) {
                 cx -= 2
             }
             if (cy % 4 === 0) {
                 cy += 1;
             } else if (cy % 4 === 2) {
                 cy -= 1
-            }
-            else if (cy % 4 === 3) {
+            } else if (cy % 4 === 3) {
                 cy -= 2
-            }
-            if (y.length < b.n) {
+            }*/
+//            if (y.length < b.n) {
                 y.push({x: cx, y: cy, xv: 0, yv: 0, o: 1});
-            }
+//            }
             for (let i = 0; i < y.length; i++) {
                 if (y[i].xv === 0 && y[i].yv === 0) {
                     if (Math.random() < .5) {
