@@ -39,7 +39,9 @@ class Util {
     }
 
     static easeInOutCubic(t, b, c, d) {
-        if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
+        if ((t /= d / 2) < 1) {
+            return c / 2 * t * t * t + b;
+        }
         return c / 2 * ((t -= 2) * t * t + 2) + b;
     }
 
@@ -52,7 +54,9 @@ class Util {
     }
 
     static easeInOutQuart(t, b, c, d) {
-        if ((t /= d / 2) < 1) return c / 2 * t * t * t * t + b;
+        if ((t /= d / 2) < 1) {
+            return c / 2 * t * t * t * t + b;
+        }
         return -c / 2 * ((t -= 2) * t * t * t - 2) + b;
     }
 
@@ -65,7 +69,9 @@ class Util {
     }
 
     static easeInOutQuint(t, b, c, d) {
-        if ((t /= d / 2) < 1) return c / 2 * t * t * t * t * t + b;
+        if ((t /= d / 2) < 1) {
+            return c / 2 * t * t * t * t * t + b;
+        }
         return c / 2 * ((t -= 2) * t * t * t * t + 2) + b;
     }
 
@@ -90,9 +96,15 @@ class Util {
     }
 
     static easeInOutExpo(t, b, c, d) {
-        if (t === 0) return b;
-        if (t === d) return b + c;
-        if ((t /= d / 2) < 1) return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+        if (t === 0) {
+            return b;
+        }
+        if (t === d) {
+            return b + c;
+        }
+        if ((t /= d / 2) < 1) {
+            return c / 2 * Math.pow(2, 10 * (t - 1)) + b;
+        }
         return c / 2 * (-Math.pow(2, -10 * --t) + 2) + b;
     }
 
@@ -105,7 +117,9 @@ class Util {
     }
 
     static easeInOutCirc(t, b, c, d) {
-        if ((t /= d / 2) < 1) return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+        if ((t /= d / 2) < 1) {
+            return -c / 2 * (Math.sqrt(1 - t * t) - 1) + b;
+        }
         return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
     }
 
@@ -113,14 +127,21 @@ class Util {
         let s = 1.70158;
         let p = 0;
         let a = c;
-        if (t === 0) return b;
-        if ((t /= d) === 1) return b + c;
-        if (!p) p = d * .3;
+        if (t === 0) {
+            return b;
+        }
+        if ((t /= d) === 1) {
+            return b + c;
+        }
+        if (!p) {
+            p = d * .3;
+        }
         if (a < Math.abs(c)) {
             a = c;
             let s = p / 4;
+        } else {
+            let s = p / (2 * Math.PI) * Math.asin(c / a);
         }
-        else let s = p / (2 * Math.PI) * Math.asin(c / a);
         return -(a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
     }
 
@@ -128,14 +149,21 @@ class Util {
         let s = 1.70158;
         let p = 0;
         let a = c;
-        if (t === 0) return b;
-        if ((t /= d) === 1) return b + c;
-        if (!p) p = d * .3;
+        if (t === 0) {
+            return b;
+        }
+        if ((t /= d) === 1) {
+            return b + c;
+        }
+        if (!p) {
+            p = d * .3;
+        }
         if (a < Math.abs(c)) {
             a = c;
             let s = p / 4;
+        } else {
+            let s = p / (2 * Math.PI) * Math.asin(c / a);
         }
-        else let s = p / (2 * Math.PI) * Math.asin(c / a);
         return a * Math.pow(2, -10 * t) * Math.sin((t * d - s) * (2 * Math.PI) / p) + c + b;
     }
 
@@ -143,36 +171,53 @@ class Util {
         let s = 1.70158;
         let p = 0;
         let a = c;
-        if (t === 0) return b;
-        if ((t /= d / 2) === 2) return b + c;
-        if (!p) p = d * (.3 * 1.5);
+        if (t === 0) {
+            return b;
+        }
+        if ((t /= d / 2) === 2) {
+            return b + c;
+        }
+        if (!p) {
+            p = d * (.3 * 1.5);
+        }
         if (a < Math.abs(c)) {
             a = c;
             let s = p / 4;
+        } else {
+            let s = p / (2 * Math.PI) * Math.asin(c / a);
         }
-        else let s = p / (2 * Math.PI) * Math.asin(c / a);
-        if (t < 1) return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+        if (t < 1) {
+            return -.5 * (a * Math.pow(2, 10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p)) + b;
+        }
         return a * Math.pow(2, -10 * (t -= 1)) * Math.sin((t * d - s) * (2 * Math.PI) / p) * .5 + c + b;
     }
 
     static easeInBack(t, b, c, d, s) {
-        if (s === undefined) s = 1.70158;
+        if (s === undefined) {
+            s = 1.70158;
+        }
         return c * (t /= d) * t * ((s + 1) * t - s) + b;
     }
 
     static easeOutBack(t, b, c, d, s) {
-        if (s === undefined) s = 1.70158;
+        if (s === undefined) {
+            s = 1.70158;
+        }
         return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
     }
 
     static easeInOutBack(t, b, c, d, s) {
-        if (s === undefined) s = 1.70158;
-        if ((t /= d / 2) < 1) return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
+        if (s === undefined) {
+            s = 1.70158;
+        }
+        if ((t /= d / 2) < 1) {
+            return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
+        }
         return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
     }
 
     static easeInBounce(t, b, c, d) {
-        return c - jQuery.easing.easeOutBounce(x, d - t, 0, c, d) + b;
+        return c - Util.easeOutBounce(x, d - t, 0, c, d) + b;
     }
 
     static easeOutBounce(t, b, c, d) {
@@ -188,7 +233,9 @@ class Util {
     }
 
     static easeInOutBounce(t, b, c, d) {
-        if (t < d / 2) return jQuery.easing.easeInBounce(t * 2, 0, c, d) * .5 + b;
-        return jQuery.easing.easeOutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
+        if (t < d / 2) {
+            return Util.easeInBounce(t * 2, 0, c, d) * .5 + b;
+        }
+        return Util.easeOutBounce(t * 2 - d, 0, c, d) * .5 + c * .5 + b;
     }
 }
