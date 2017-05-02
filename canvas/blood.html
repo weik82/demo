@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>粒子偏差动画</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css?family=Montserrat:200,300,400,600");
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+        }
+
+        .title {
+            z-index: 10;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            font-family: "Montserrat";
+            text-align: center;
+            width: 100%;
+        }
+
+        .title h1 {
+            position: relative;
+            color: #EEEEEE;
+            font-weight: 600;
+            font-size: 60px;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            text-shadow: 0 0 30px #000155;
+        }
+
+        .title h3 {
+            font-weight: 200;
+            font-size: 20px;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            color: #EEEEEE;
+            letter-spacing: 2px;
+            text-shadow: 0 0 30px #000155;
+        }
+    </style>
+</head>
+<body>
+
+<div class="title">
+    <h3>PLASM.it - 2017</h3>
+    <h1>BLOOD</h1>
+    <h3>Deviation of microcosm</h3>
+</div>
+
+<script>
+    'use strict';
+
+    function _classCallCheck(instance, Constructor) {
+        if (!(instance instanceof Constructor)) {
+            throw new TypeError("Cannot call a class as a function");
+        }
+    }
+
+    let max_particles = 1000;
+
+    let tela = document.createElement('canvas');
+    tela.width = window.innerWidth;
+    tela.height = window.innerHeight;
+    document.body.appendChild(tela);
+
+    let canvas = tela.getContext('2d');
+
+    let Particle = function () {
+        function Particle(canvas, progress) {
+            _classCallCheck(this, Particle);
+
+            let random = Math.random();
+            this.progress = 0;
+            this.canvas = canvas;
+
+            this.w =  window.innerWidth;
+            this.h =  window.innerHeight;
+
+            this.x = this.w / 2 + (Math.random() * 200 - Math.random() * 200);
+            this.y = this.h / 2 + (Math.random() * 200 - Math.random() * 200);
+
+
+            this.radius = random > .2 ? Math.random() : Math.random() * 3;
+            this.color = random > .2 ? "#d8002c" : "#F9314C";
+            this.radius = random > .8 ? Math.random() * 2 : this.radius;
+            this.color = random > .8 ? "#7DFFF2" : this.color;
+
+            // this.color  = random > .1 ? "#ffae00" : "#f0ff00" // Alien
+            this.variantx1 = Math.random() * 300;
+            this.variantx2 = Math.random() * 400;
+            this.varianty1 = Math.random() * 100;
+            this.varianty2 = Math.random() * 120;
+        }
+
+        Particle.prototype.render = function render() {
+            this.canvas.beginPath();
+            this.canvas.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+            this.canvas.lineWidth = 2;
+            this.canvas.fillStyle = this.color;
+            this.canvas.fill();
+            this.canvas.closePath();
+        };
+
+        Particle.prototype.move = function move() {
+            // this.x += (Math.sin(this.progress/this.variantx1)*Math.cos(this.progress/this.variantx2));
+            // this.y += (Math.sin(this.progress/this.varianty1)*Math.cos(this.progress/this.varianty2));
+            this.x += Math.sin(this.progress / this.variantx1) * Math.cos(this.progress / this.variantx2);
+            this.y += Math.cos(this.progress / this.varianty2);
+
+            if (this.x < 0 || this.x > this.w - this.radius) {
+                return false;
+            }
+
+            if (this.y < 0 || this.y > this.h - this.radius) {
+                return false;
+            }
+            this.render();
+            this.progress++;
+            return true;
+        };
+
+        return Particle;
+    }();
+
+    let particles = [];
+    let init_num = popolate(max_particles);
+
+    function popolate(num) {
+        for (let i = 0; i < num; i++) {
+            setTimeout(function () {
+                particles.push(new Particle(canvas, i));
+            }.bind(this), i * 20);
+        }
+        return particles.length;
+    }
+
+    function clear() {
+        canvas.globalAlpha = 0.05;
+        canvas.fillStyle = '#000';
+        canvas.fillRect(0, 0, tela.width, tela.height);
+        canvas.globalAlpha = 1;
+    }
+
+    function update() {
+        particles = particles.filter(function (p) {
+            return p.move();
+        });
+        if (particles.length < init_num) {
+            popolate(1);
+        }
+        clear();
+        requestAnimationFrame(update.bind(this));
+    }
+    update();
+</script>
+</body>
+</html>
