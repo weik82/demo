@@ -123,7 +123,7 @@
     let p = 0;
     let hs = 0;
     let color = Math.random() * 360;
-    let current = 'type7';
+    let current = 'type1';
     let draw = {
         'type1': function () {
             color += .1;
@@ -422,7 +422,11 @@
                 ctx.globalAlpha = y[i].o;
                 y[i].x += (Math.random() - .5) * 4;
                 y[i].y -= 1;
-                ctx.fillRect(y[i].x, y[i].y, 2, 2);
+//                ctx.fillRect(y[i].x,y[i].y,2,2)
+                ctx.beginPath();
+                ctx.arc(y[i].x, y[i].y, 1, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
                 if (y[i].o <= 0) {
                     y.splice(i, 1);
                     i--;

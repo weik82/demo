@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="canvas" width="800" height="200" style="background-color: cornsilk"></canvas>
+<script>
+    let img = new Image();
+    img.src = 'https://mdn.mozillademos.org/files/4553/Capitan_Meadows,_Yosemite_National_Park.jpg';
+    let CanvasXSize = 800;
+    let CanvasYSize = 200;
+    let speed = 30; //lower is faster
+    let scale = 1.05;
+    let y = -4.5; //vertical offset
+
+    let dx = 0.75;
+    let imgW;
+    let imgH;
+    let x = 0;
+    let clearX;
+    let clearY;
+    let ctx;
+
+    img.onload = function () {
+        imgW = img.width * scale;
+        imgH = img.height * scale;
+        //1024>800;
+        if (imgW > CanvasXSize) {
+            x = CanvasXSize - imgW;
+        } else {
+            throw Error('图片的宽度必须大于canvas容器的宽度')
+        }
+        clearX = imgW > CanvasXSize ? imgW : CanvasXSize;
+        clearY = imgH > CanvasYSize ? imgH : CanvasYSize;
+        ctx = document.getElementById('canvas').getContext('2d');
+        return setInterval(draw, speed);
+//        draw();
+    };
+
+    function draw() {
+
+        ctx.clearRect(0, 0, clearX, clearY);
+        x += dx;
+        if (x > 0 && x <= CanvasXSize) {
+            ctx.drawImage(img, x - imgW, y, imgW, imgH);
+        }
+        if (x > CanvasXSize) {
+            x = CanvasXSize - imgW;
+        }
+        ctx.drawImage(img, x, y, imgW, imgH);
+        //If image is <= Canvas Size
+        /*if (imgW <= CanvasXSize) {
+         //reset, start from beginning
+         if (x > (CanvasXSize)) {
+         x = 0;
+         }
+         //draw aditional image
+         if (x > (CanvasXSize - imgW)) {
+         ctx.drawImage(img, x - CanvasXSize + 1, y, imgW, imgH);
+         }
+         } else {//If image is > Canvas Size
+         //reset, start from beginning
+         if (x > (CanvasXSize)) {
+         x = CanvasXSize - imgW;
+         }
+         //draw aditional image
+         if (x > (CanvasXSize - imgW)) {
+         ctx.drawImage(img, x - imgW + 1, y, imgW, imgH);
+         }
+         }
+         //draw image
+         ctx.drawImage(img, x, y, imgW, imgH);
+         //amount to move
+         x += dx;*/
+    }
+</script>
+</body>
+</html>
