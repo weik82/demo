@@ -27,13 +27,15 @@
 </head>
 <body>
 <canvas id="starCanvas"></canvas>
-<canvas id="starSignCanvas"></canvas>
+<canvas id="starSignCanvas" style="background-color: #222222"></canvas>
 <script>
     ({
         drawStarBg: function () {
             let d = document.querySelector("#starCanvas");
+            d.width = window.innerWidth;
+            d.height = window.innerHeight;
             let c = d.getContext("2d");
-            let e = {}, h = 0, f = {density: 300, rightWall: d.width, alpha: 0, maxAlpha: 1};
+            let e = {}, f = {density: 500, rightWall: d.width, alpha: 0, maxAlpha: 1};
             let a = function () {
                 let m = Math.random();
                 let n = Math.ceil(1 / (1 - m));
@@ -44,48 +46,46 @@
                 return Math.min.apply(null, k)
             };
 
-            function g() {
-                let k = window.innerWidth;
-                d.width = k;
-                d.height = d.parentNode.clientHeight;
-                f.rightWall = d.width;
-                j()
-            }
-
-            g();
-            function j() {
-                c.clearRect(0, 0, d.width, d.height);
-                c.fillStyle = "rgba(0,0,0,0)";
-                c.fillRect(0, 0, d.width, d.height)
-            }
-
-            function i() {
+            function Star() {
                 this.x = Math.floor(Math.random() * d.width);
-                this.y = d.height / 2 + (Math.random() > 0.5 ? 1 : "-1") * d.height / 2 * a();
+                this.y = d.height / 2 + (Math.random() > 0.5 ? 1 : -1) * d.height / 2 * a();
                 this.vx = Math.random() * 0.05 + 0.025;
-                this.particleSize = 0.5 + (Math.random() + 0.1 / 4);
-                h++;
-                e[h] = this;
+                this.particleSize = 0.5 + Math.random() * 0.5;
                 this.alpha = 0;
                 this.maxAlpha = 0.2 + (this.y / d.height) * Math.random() * 0.8;
-                this.alphaAction = 1
+                this.alphaAction = 1;
+                this.particleSizeAction = 1;
             }
 
-            i.prototype.draw = function () {
+            Star.prototype.draw = function () {
                 this.x += this.vx;
-                if (this.alphaAction == 1) {
+                if (this.alphaAction === 1) {
                     if (this.alpha < this.maxAlpha) {
                         this.alpha += 0.005
                     } else {
                         this.alphaAction = -1
                     }
                 } else {
-                    if (this.alpha > 0.2) {
+                    if (this.alpha > 0.3) {
                         this.alpha -= 0.002
                     } else {
                         this.alphaAction = 1
                     }
                 }
+                if (this.particleSizeAction === 1) {
+                    if (this.particleSize < 1) {
+                        this.particleSize += 0.005;
+                    } else {
+                        this.particleSizeAction = -1;
+                    }
+                } else {
+                    if (this.particleSize > 0.5) {
+                        this.particleSize -= 0.005
+                    } else {
+                        this.particleSizeAction = 1;
+                    }
+                }
+
                 if (this.x + (this.particleSize * 2) >= f.rightWall) {
                     this.x = this.x - f.rightWall
                 }
@@ -96,14 +96,16 @@
                 c.fill()
             };
             function b() {
-                j();
-                let l = 200;
+                c.clearRect(0, 0, d.width, d.height);
+                c.fillStyle = "rgba(0,0,0,1)";
+                c.fillRect(0, 0, d.width, d.height);
+                let l = 250;
                 if (Object.keys(e).length > l) {
                     f.density = 0
                 }
                 for (let k = 0; k < f.density; k++) {
-                    if (Math.random() > 0.97) {
-                        new i()
+                    if (Math.random() > 0.97 && !e[k]) {
+                        e[k] = new Star();
                     }
                 }
                 for (let k in e) {
@@ -115,11 +117,7 @@
             b()
         },
         drawStarSwitch: function () {
-            let k = this;
             let b = document.querySelector("#starSignCanvas");
-            if (!b) {
-                return
-            }
             b.height = window.innerHeight;
             b.width = window.innerWidth;
             let a = b.getContext("2d");
@@ -139,7 +137,7 @@
                     line: ["2-1", "3-2", "4-3", "5-4", "6-5", "7-6", "8-7", "9-8", "10-9", "11-10", "13-12"]
                 },
                 {
-                    pos: [[h - 12, e - 138], [h + 51, e - 107], [h + 69, e - 46], [h + 46, e + 24], [h + 46, e + 75], [h - 26, e + 84], [h - 40, e + 26], [h - 80, e - 35], [h - 70, e - 100], [h + 5, e + 25], [h + 3, e - 12], [h + 33, e - 35], [h - 38, e - 40], [h + 0, e - 64]],
+                    pos: [[h - 12, e - 138], [h + 51, e - 107], [h + 69, e - 46], [h + 46, e + 24], [h + 46, e + 75], [h - 26, e + 84], [h - 40, e + 26], [h - 80, e - 35], [h - 70, e - 100], [h + 5, e + 25], [h + 3, e - 12], [h + 33, e - 35], [h - 38, e - 40], [h, e - 64]],
                     line: ["2-1", "3-2", "4-3", "5-4", "6-5", "7-6", "8-7", "9-8", "9-1", "10-4", "10-7", "11-10", "12-11", "13-12", "14-13"]
                 },
                 {
@@ -153,15 +151,18 @@
             ];
             let c = {}, l = {};
             let d = {
-                index: 0, durtion: 100, time: 1000, ElasticEaseOut: function (o, m, v, u, n, r) {
+                index: 0,
+                duration: 100,
+                time: 1000,
+                ElasticEaseOut: function (o, m, v, u, n, r) {
                     let q;
-                    if (o == 0) {
+                    if (o === 0) {
                         return m
                     }
-                    if ((o /= u) == 1) {
+                    if ((o /= u) === 1) {
                         return m + v
                     }
-                    if (typeof r == "undefined") {
+                    if (typeof r === "undefined") {
                         r = u * 0.3
                     }
                     if (!n || n < Math.abs(v)) {
@@ -185,7 +186,7 @@
                     let p = this.angle;
                     let v = p, u = p + 2 * Math.PI / 3, t = p - 2 * Math.PI / 3;
                     let s = p + Math.PI / 3, q = p - Math.PI / 3;
-                    ang6 = p + Math.PI;
+                    let ang6 = p + Math.PI;
                     let y = [v, u, t, s, q, ang6].map(function (r) {
                         return [x + n * Math.cos(r), w + n * Math.sin(r)]
                     });
@@ -231,11 +232,6 @@
                     if (!c[v]) {
                         c[v] = new j(a)
                     }
-                    if (q.scale) {
-                        c[v].scale = q.scale
-                    } else {
-                        c[v].scale = null
-                    }
                 });
                 s.forEach(function (w, v) {
                     if (!l[v]) {
@@ -243,15 +239,16 @@
                     }
                     l[v].line = w
                 });
-                let t = [], r = u.map(function (v) {
-                    return v
-                });
+                let t = [],
+                    r = u.map(function (v) {
+                        return v
+                    });
                 if (!c[0].x && !c[0].y) {
                     r.forEach(function () {
                         t.push([h, e])
                     })
                 } else {
-                    if (d.index == 0) {
+                    if (d.index === 0) {
                         t = g[g.length - 1].pos.map(function (v) {
                             return v
                         })
@@ -271,54 +268,35 @@
                 let m = function () {
                     a.clearRect(0, 0, b.width, b.height);
                     r.forEach(function (v, w) {
-                        let y = d.ElasticEaseOut(n, t[w][0], v[0] - t[w][0], d.durtion);
-                        let x = d.ElasticEaseOut(n, t[w][1], v[1] - t[w][1], d.durtion);
-                        c[w].x = y;
-                        c[w].y = x;
+                        let x = d.ElasticEaseOut(n, t[w][0], v[0] - t[w][0], d.duration);
+                        let y = d.ElasticEaseOut(n, t[w][1], v[1] - t[w][1], d.duration);
+                        c[w].x = x;
+                        c[w].y = y;
                         c[w].draw()
                     });
                     s.forEach(function (w, v) {
                         l[v].draw()
                     });
                     n++;
-                    if (n <= d.durtion) {
+                    if (n <= d.duration) {
                         requestAnimationFrame(m)
                     } else {
-                        k.isRendering = false;
                         d.index++;
                         if (d.index >= g.length) {
                             d.index = 0
                         }
                         setTimeout(function () {
-//                            k.starSignImgSwitch(d.index);
                             i()
                         }, d.time)
                     }
                 };
-                k.isRendering = true;
                 m()
             };
             i();
-            return this
-        },
-        starSignImgSwitch: function (c) {
-            let b = this;
-            let a = document.querySelectorAll("#container img");
-            let d = document.querySelector("#container .active");
-            if (d) {
-                d.classList.remove("active")
-            }
-            if (a[c]) {
-                a[c].classList.add("active")
-            }
         },
         init: function () {
-//            let a = document.querySelector("#container");
-//            if (a) {
-//                this.drawStarBg();
+//            this.drawStarBg();
             this.drawStarSwitch();
-//                a.classList.add("inited")
-//            }
         }
     }).init();
 </script>
