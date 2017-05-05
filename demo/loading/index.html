@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>loading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        body {
+            background-color: #535353;
+        }
+
+        .fe-load {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .fe-load > i {
+            width: 200px;
+            height: 200px;
+            background: url('//game.gtimg.cn/images/up/act/a20170301pre/images/b.png') center/contain;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            transform-origin: 55% 55%;
+            animation: loading-rotate 5.4s infinite linear, loading-opacity 5.4s infinite linear;
+        }
+        .fe-load>i:nth-of-type(1){animation-delay: .1s}
+        .fe-load>i:nth-of-type(2){animation-delay: .7s}
+        .fe-load>i:nth-of-type(3){animation-delay: 1.3s}
+        .fe-load>i:nth-of-type(4){animation-delay: 1.9s}
+        .fe-load>i:nth-of-type(5){animation-delay: 2.5s}
+        .fe-load>i:nth-of-type(6){animation-delay: 3.1s}
+        .fe-load>i:nth-of-type(7){animation-delay: 3.7s}
+        .fe-load>i:nth-of-type(8){animation-delay: 4.3s}
+        .fe-load>i:nth-of-type(9){animation-delay: 4.9s}
+        .fe-load>i:nth-of-type(10){animation-delay: 5.5s}
+        @keyframes loading-rotate {
+            0%{}
+            30% {
+                transform: rotate(-20deg) scale(0.6);
+            }
+            60% {
+                transform: rotate(-45deg) scale(0.3);
+            }
+            85% {
+                transform: rotate(-67deg) scale(0.1);
+            }
+            100% {
+                transform: rotate(-90deg) scale(0);
+            }
+        }
+        @keyframes loading-opacity {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: .5;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        .fe-load.fe-load-1{
+           height: 100px;
+        }
+        .half-circle{
+            border: 6px solid ;
+            border-color: #fff #fff transparent transparent;
+            border-radius: 50%;
+            transform: rotate(-225deg);
+            transform-origin: 50% 50%;
+            position: absolute;
+            left: 50%;
+            top:100%;
+            animation: loading-1-rotate 2s infinite linear alternate;
+        }
+        /*$types: 200px;
+        $type-width: 16px;
+        $index:1;
+        $delay:0.1s;
+        $count:30/180;
+        @while $types > 20
+        {
+            .fe-load>.half-circle:nth-of-type(#{$index}){
+                animation-delay:$delay;
+                width: $types;
+                height: $types;
+                margin-left:-$types/2;
+                margin-top: -$types/2
+            }
+        $types: $types - $type-width;
+        $index:$index + 1;
+        $delay:$delay + $count;
+        }*/
+        .fe-load > .half-circle:nth-of-type(1) {
+            animation-delay: 0.1s;
+            width: 200px;
+            height: 200px;
+            margin-left: -100px;
+            margin-top: -100px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(2) {
+            animation-delay: 0.32222s;
+            width: 184px;
+            height: 184px;
+            margin-left: -92px;
+            margin-top: -92px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(3) {
+            animation-delay: 0.54444s;
+            width: 168px;
+            height: 168px;
+            margin-left: -84px;
+            margin-top: -84px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(4) {
+            animation-delay: 0.76667s;
+            width: 152px;
+            height: 152px;
+            margin-left: -76px;
+            margin-top: -76px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(5) {
+            animation-delay: 0.98889s;
+            width: 136px;
+            height: 136px;
+            margin-left: -68px;
+            margin-top: -68px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(6) {
+            animation-delay: 1.21111s;
+            width: 120px;
+            height: 120px;
+            margin-left: -60px;
+            margin-top: -60px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(7) {
+            animation-delay: 1.43333s;
+            width: 104px;
+            height: 104px;
+            margin-left: -52px;
+            margin-top: -52px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(8) {
+            animation-delay: 1.65556s;
+            width: 88px;
+            height: 88px;
+            margin-left: -44px;
+            margin-top: -44px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(9) {
+            animation-delay: 1.87778s;
+            width: 72px;
+            height: 72px;
+            margin-left: -36px;
+            margin-top: -36px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(10) {
+            animation-delay: 2.1s;
+            width: 56px;
+            height: 56px;
+            margin-left: -28px;
+            margin-top: -28px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(11) {
+            animation-delay: 2.32222s;
+            width: 40px;
+            height: 40px;
+            margin-left: -20px;
+            margin-top: -20px;
+        }
+
+        .fe-load > .half-circle:nth-of-type(12) {
+            animation-delay: 2.54444s;
+            width: 24px;
+            height: 24px;
+            margin-left: -12px;
+            margin-top: -12px;
+        }
+
+
+
+        @keyframes loading-1-rotate {
+            0%{transform: rotate(-225deg);}
+            /*50%{transform: rotate(-45deg);}*/
+            100%{transform: rotate(-45deg);}
+        }
+    </style>
+</head>
+<body>
+<!--<div class="fe-load">
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+    <i></i>
+</div>-->
+<div class="fe-load fe-load-1">
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+    <div class="half-circle"></div>
+</div>
+</body>
+</html>
