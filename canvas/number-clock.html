@@ -448,12 +448,10 @@
         return {
             init: function (canvasID) {
                 canvas = document.getElementById(canvasID);
-                // make sure canvas exists and that the browser understands it
                 if (canvas === null || !canvas.getContext) {
                     return;
-                }
-                // set context
-                ctx = canvas.getContext("2d");
+                } // make sure canvas exists and that the browser understands it
+                ctx = canvas.getContext("2d"); // set context
                 // set dimensions
                 setDimensions();
                 // ui
