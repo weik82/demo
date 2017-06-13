@@ -12,14 +12,25 @@
     <p id="pinch">0</p>
     <p id="multipointEnd">0</p>
     <p id="pressMove">0</p>
-    <p id="tap">0</p>
+    <br>
+    <br>
+    <p id="elpressMove">0</p>
+    <p id="other">0</p>
 </div>
 <div class="swipe">
     <div class="swipe-wrap" id="swipe">
-        <div class="swipe-item"><img src="image/121023k21ozaq8ulmkorrl.jpg" id="test1" class="swipe-img" alt="" width="100%"></div>
-        <div class="swipe-item"><img src="image/20161129152800.png" id="test2" class="swipe-img" alt="" width="100%"></div>
-        <div class="swipe-item"><img src="image/121033yzpgsjxo36ejq6ug.jpg" id="test3" class="swipe-img" alt="" width="100%"></div>
-        <div class="swipe-item"><img src="image/121040k7l1r6ulh634hw73.jpg" id="test4" class="swipe-img" alt="" width="100%"></div>
+        <div class="swipe-item">
+            <img src="image/121023k21ozaq8ulmkorrl.jpg" id="test1" class="swipe-img" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/20161129152800.png" id="test2" class="swipe-img" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/121033yzpgsjxo36ejq6ug.jpg" id="test3" class="swipe-img" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/121040k7l1r6ulh634hw73.jpg" id="test4" class="swipe-img" alt="" width="100%">
+        </div>
     </div>
 </div>
 <script src="js/alloy_finger.js"></script>
@@ -27,79 +38,87 @@
 <script src="js/to.js"></script>
 <script>
     let $el = document.querySelector('#swipe'),
-        $sel=$el.querySelectorAll('.swipe-item'),
+        $sel = $el.querySelectorAll('.swipe-item'),
         $index = 0,
-        $width=$sel[0].getBoundingClientRect().width,
-        $size=$sel.length;
+        $width = $sel[0].getBoundingClientRect().width,
+        $size = $sel.length;
     Transform($el);
     new AlloyFinger($el, {
         touchMove: function (evt) {
+            document.querySelector('#other').innerHTML = 'ptouchMove';
             if (Math.abs(evt.deltaX) >= Math.abs(evt.deltaY)) {
                 evt.preventDefault();
-                let _translateX=$el.translateX+evt.deltaX;
-                if(_translateX<=0&&_translateX>=-$width*($size-1)){
-                    new To($el,"translateX",_translateX,10)
+                let _translateX = $el.translateX + evt.deltaX;
+                if (_translateX <= 0 && _translateX >= -$width * ($size - 1)) {
+                    $el.translateX = _translateX;
                 }
             }
         },
         swipe: function (evt) {
-            let _translateX=$el.translateX;
-            let _deltaX=Math.abs(_translateX+$width*$index);
-            if(evt.deltaTime<=300||(evt.deltaTime>300&&_deltaX>30)){
-                    console.log(_deltaX)
-                    if (evt.direction === "Left") {
-                        if ($index < 3) {
-                            $index++;
-                            new To($el, "translateX", -$width * $index, 300, '', function () {
-//                        activeNav($index);
-                                let el=document.querySelector('#test'+$index);
-                                el.scaleX=1;
-                                el.scaleY=1;
-                                el.translateX=0;
-                                el.translateY=0;
-                            });
-                        }
-                    } else if (evt.direction === "Right") {
-                        if ($index > 0) {
-                            $index--;
-                            new To($el, "translateX", -$width * $index, 300, '', function () {
-//                        activeNav($index);
-                                let el=document.querySelector('#test'+($index+2));
-                                el.scaleX=1;
-                                el.scaleY=1;
-                                el.translateX=0;
-                                el.translateY=0;
-                            });
-                        }
+            document.querySelector('#other').innerHTML = 'pswipe';
+            let _translateX = $el.translateX;
+            let _deltaX = Math.abs(_translateX + $width * $index);
+            if (evt.deltaTime <= 300 || (evt.deltaTime > 300 && _deltaX > 30)) {
+                if (evt.direction === "Left") {
+                    if ($index < 3) {
+                        $index++;
+                        new To($el, "translateX", -$width * $index, 300, '', function () {
+                            let _el = document.querySelector('#test' + $index);
+                            _el.scaleX = 1;
+                            _el.scaleY = 1;
+                            _el.translateX = 0;
+                            _el.translateY = 0;
+                        });
                     }
-            }else {
+                } else if (evt.direction === "Right") {
+                    if ($index > 0) {
+                        $index--;
+                        new To($el, "translateX", -$width * $index, 300, '', function () {
+//                        activeNav($index);
+                            let el = document.querySelector('#test' + ($index + 2));
+                            el.scaleX = 1;
+                            el.scaleY = 1;
+                            el.translateX = 0;
+                            el.translateY = 0;
+                        });
+                    }
+                }
+            } else {
                 new To($el, "translateX", -$width * $index, 300, '', function () {
 //                        activeNav($index);
                 });
             }
         }
-    })
-    let els=document.querySelectorAll('.swipe-img');
-    [].forEach.call(els,function (item) {
-        console.dir(item.id);
-        let el=document.querySelector("#"+item.id);
+    });
+    let els = document.querySelectorAll('.swipe-img');
+    [].forEach.call(els, function (item) {
+        let el = document.querySelector("#" + item.id);
         let initScale = 1;
         Transform(el);
-        new AlloyFinger(el,{
+        el.scaleX = el.scaleY = 1;
+        new AlloyFinger(el, {
             multipointStart: function (evt) {
-                document.querySelector('#multipointStart').innerHTML='multipointStart';
-                console.log(evt)
-                initScale=el.scaleX;
+                document.querySelector('#other').innerHTML = 'multipointStart';
+                document.querySelector('#multipointStart').innerHTML = 'multipointStart';
+                console.log(evt);
+                initScale = el.scaleX;
             },
             pinch: function (evt) {
+
+                document.querySelector('#other').innerHTML = 'pinch';
                 evt.stopPropagation();
                 evt.preventDefault();
-                document.querySelector('#pinch').innerHTML= 'pinch'+evt.scale;
+                document.querySelector('#pinch').innerHTML = 'pinch:' + evt.scale;
+                if (evt.pinchCenter) {
+                    el.style.transformOrigin = evt.pinchCenter;
+                }
                 el.scaleX = el.scaleY = initScale * evt.scale;
             },
-            multipointEnd:function () {
+            multipointEnd: function () {
+                document.querySelector('#other').innerHTML = 'multipointEnd';
                 To.stopAll();
-                document.querySelector('#multipointEnd').innerHTML='multipointEnd'+el.scaleX;
+                el.translateX = el.translateY = 0;
+                document.querySelector('#multipointEnd').innerHTML = 'multipointEnd:' + el.scaleX;
                 if (el.scaleX < 1) {
                     new To(el, "scaleX", 1, 200);
                     new To(el, "scaleY", 1, 200);
@@ -109,39 +128,44 @@
                     new To(el, "scaleY", 2, 200);
                 }
             },
-            tap: function (evt) {
-                document.querySelector('#tap').innerHTML='tap';
-            },
             pressMove: function (evt) {
-                let _scale=el.scaleX;
-                if (_scale >1) {
-                    let _width=document.documentElement.clientWidth, _rect=el.getBoundingClientRect();
-                    document.querySelector('#pressMove').innerHTML = 'pressMove..'+evt.deltaX+'..'+evt.deltaY;
-                    console.log("pressMove");
-                    let _dx=el.translateX+evt.deltaX,
-                        _dy=el.translateY+evt.deltaX;
-                    if(_rect.left+evt.deltaX<=0&&(_width-_rect.right-evt.deltaX<=0)){
+                document.querySelector('#other').innerHTML = 'pressMove';
+                document.querySelector('#pressMove').innerHTML = 'pressMove:' + evt.deltaX + '..' + evt.deltaY;
+                let _scale = el.scaleX;
+                if (_scale > 1) {
+                    let _width = document.documentElement.clientWidth,
+                        _height = document.documentElement.clientHeight,
+                        _rect = el.getBoundingClientRect();
+                    let _dx = el.translateX + evt.deltaX,
+                        _dy = el.translateY + evt.deltaY;
+                    if (_rect.left + evt.deltaX <= 0 && (_width - _rect.right - evt.deltaX <= 0)) {
                         evt.stopPropagation();
                         evt.preventDefault();
-                        el.translateX =_dx;
+                        el.translateX = _dx;
+                        if (_rect.top + evt.deltaY <= 0 && (_height - _rect.bottom - evt.deltaY <= 0)) {
+                            el.translateY = _dy;
+                        }
                     }
-//                    el.translateY += evt.deltaY;
                 }
             },
-            touchEnd:function (evt) {
-                let _scale=el.scaleX;
-                if (_scale >1) {
-                    let _width=document.documentElement.clientWidth,
-                        _rect=el.getBoundingClientRect(),
-                        _translateX=el.translateX;
-                    if(_rect.right<=_width){
-                        new To(el, "translateX", _translateX+_width-_rect.right, 200, '', function () {});
+            touchEnd: function (evt) {
+                document.querySelector('#other').innerHTML = 'touchEnd';
+                let _scale = el.scaleX;
+                if (_scale > 1) {
+                    let _width = document.documentElement.clientWidth,
+                        _rect = el.getBoundingClientRect(),
+                        _translateX = el.translateX;
+                    if (_rect.right <= _width) {
+                        document.querySelector('#other').innerHTML = 'touchEnd' + 'right';
+                        new To(el, "translateX", _translateX + _width - _rect.right, 200, '', function () {
+                        });
                     }
-                    if(_rect.left>=0){
-                        new To(el, "translateX", _translateX-_rect.left, 200, '', function () {});
+                    if (_rect.left >= 0) {
+                        document.querySelector('#other').innerHTML = 'touchEnd' + 'left';
+                        new To(el, "translateX", _translateX - _rect.left, 200, '', function () {
+                        });
                     }
                 }
-
             }
         })
     })

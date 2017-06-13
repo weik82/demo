@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="info" id="info">
+    <p id="multipointStart">0</p>
+    <p id="pinch">0</p>
+    <p id="multipointEnd">0</p>
+    <p id="pressMove">0</p>
+    <br>
+    <br>
+    <p id="elpressMove">0</p>
+    <p id="other">0</p>
+</div>
+<div class="swipe">
+    <div class="swipe-wrap" id="swipe">
+        <div class="swipe-item">
+            <img src="image/121023k21ozaq8ulmkorrl.jpg" id="test1" class="swipe-image" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/20161129152800.png" id="test2" class="swipe-image" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/121033yzpgsjxo36ejq6ug.jpg" id="test3" class="swipe-image" alt="" width="100%">
+        </div>
+        <div class="swipe-item">
+            <img src="image/121040k7l1r6ulh634hw73.jpg" id="test4" class="swipe-image" alt="" width="100%">
+        </div>
+    </div>
+</div>
+<script src="./alloy_finger.js"></script>
+<script src="./imagePreview.js"></script>
+<script>
+    var _width = document.querySelector('.swipe-item').getBoundingClientRect().width;
+    new Preview('#swipe', {
+        index: 0,
+        width: _width,
+        size: 4,
+        imageEl: '.swipe-image'
+    })
+</script>
+</body>
+</html>
