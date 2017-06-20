@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>app-del</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        .icon {
+            width: 100px;
+            height: 100px;
+            margin: 50px auto;
+            position: relative;
+        }
+
+        .canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="icon">
+    <img src="sougou.png" width="100" height="100">
+</div>
+<script>
+    var el = document.querySelector('img');
+    el.addEventListener('click', function (evt) {
+        let _position = this.getBoundingClientRect();
+        new Particle(evt.target, {
+            x: _position.left + 50,
+            y: _position.top + 50
+        }).loop();
+    }, false);
+    function Particle(image, option) {
+        let _particle = document.createElement('canvas');
+        _particle.width = window.innerWidth;
+        _particle.height = window.innerHeight;
+        _particle.classList.add('canvas');
+        document.body.appendChild(_particle);
+        this.tickID = null;
+        this.globalAlpha = 1;
+        this.ctx = _particle.getContext('2d');
+        this.ctx.drawImage(image, 0, 0);
+        let imageData = this.ctx.getImageData(0, 0, 100, 100).data;
+        this.ctx.clearRect(0, 0, 100, 100);
+        this._pxls = [];
+        for (let w = 95; w > 0; w -= 10) {
+            for (let h = 5; h < 100; h += 10) {
+                let index = (w + h * 100) * 4;
+                this._pxls.push({
+                    w: w,
+                    h: h,
+                    radius: Math.random() * 3 + 3,
+                    dirX: Math.random() - .5,
+                    dirY: Math.random() - .5,
+                    x: option.x,
+                    y: option.y,
+                    rgba: `rgba(${imageData[index]},${imageData[index + 1]},${imageData[index + 2]},${imageData[index + 3]})`
+                });
+            }
+        }
+        image.parentNode.removeChild(image);
+    }
+    Particle.prototype = {
+        constructor: Particle,
+        randomPosition: function (px) {
+            px.x += (Math.random() * 3 + 2) * px.dirX;
+            px.y += (Math.random() * 3 + 2) * px.dirY;
+            px.radius -= 0.005;
+        },
+        easeInExpo(t, b, c, d) {
+            return (t === 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
+        },
+        loop: function (t) {
+            let time = t || 0;
+            this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            if (this.globalAlpha > 0) {
+                for (let i = 0, len = this._pxls.length; i < len; i++) {
+                    let _px = this._pxls[i];
+                    this.ctx.save();
+                    this.ctx.fillStyle = _px.rgba;
+                    this.ctx.globalAlpha = this.globalAlpha;
+                    this.ctx.beginPath();
+                    this.ctx.arc(_px.x, _px.y, _px.radius, 0, 2 * Math.PI, true);
+                    this.randomPosition(_px);
+                    this.ctx.closePath();
+                    this.ctx.fill();
+                    this.ctx.restore();
+                }
+                console.log(time);
+                this.globalAlpha = this.easeInExpo(time, this.globalAlpha, -1, 3000);
+                this.tickID = requestAnimationFrame(this.loop.bind(this));
+            } else {
+                cancelAnimationFrame(this.tickID);
+            }
+
+        }
+    }
+</script>
+</body>
+</html>
