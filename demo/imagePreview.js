@@ -1,4 +1,4 @@
-;(function (window, Finger, to, undefined) {
+;(function (window, Finger, To, undefined) {
     function Preview(el, option) {
         this.element = typeof el === 'string' ? document.querySelector(el) : el;
         this.imageElement = typeof option.imageEl === 'string' ? document.querySelectorAll(option.imageEl) : option.imageEl
@@ -10,6 +10,7 @@
     }
 
     Preview.prototype = {
+        constructor: Preview,
         wrapInit: function () {
             var self = this, _delta = 0;
             new Finger(this.element, {

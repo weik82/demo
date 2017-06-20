@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+    </style>
+</head>
+<body>
+<div id="fullpage" style="height: 400%">
+    <div class="section" style="height: 25%;background-color: #999999"></div>
+    <div class="section" style="height: 25%;background-color:violet"></div>
+    <div class="section" style="height: 25%;background-color: cornflowerblue"></div>
+    <div class="section" style="height: 25%;background-color: indianred"></div>
+</div>
+<script src="FullPage.js"></script>
+<script>
+    new FullPage('#fullpage', {
+        'property': 'translateY'
+    })
+</script>
+</body>
+</html>
