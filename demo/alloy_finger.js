@@ -299,6 +299,12 @@
                 var v = {x: evt.touches[1].pageX - this.x1, y: evt.touches[1].pageY - this.y1};
                 preV.x = v.x;
                 preV.y = v.y;
+                var centerX = (this.x1 + evt.touches[1].pageX) / 2;
+                var centerY = (this.y1 + evt.touches[1].pageY) / 2;
+                console.log(centerX, centerY);
+                var _ = this.element.getBoundingClientRect();
+                this.originCenter = ((centerX - _.left) / _.width * 100) + '% ' + ((centerY - _.top) / _.height * 100) + '%';
+                console.log(this.originCenter);
                 this.pinchStartLen = getLen(preV);
                 this.multipointStart.dispatch(evt, this.element);
                 this.isMulti = true;
@@ -319,14 +325,10 @@
                 if (preV.x !== null) {
                     if (this.pinchStartLen > 0) {
                         evt.zoom = getLen(v) / this.pinchStartLen;
-                        if (!this.originCenter) {
-                            evt.centerX = (currentX + evt.touches[1].pageX) / 2;
-                            evt.centerY = (evt.touches[1].pageY + currentY) / 2;
-                            var _ = this.element.getBoundingClientRect();
-                            this.originCenter = ((evt.centerX - _.left) / _.width * 100) + '% ' + (( evt.centerY - _.top) / _.height * 100) + '%';
-                        }
                         evt.originCenter = this.originCenter;
-                        this.pinch.dispatch(evt, this.element);
+                        if (evt.zoom !== 1) {
+                            this.pinch.dispatch(evt, this.element);
+                        }
                     }
                     evt.angle = getRotateAngle(v, preV);
                     this.rotate.dispatch(evt, this.element);
@@ -384,8 +386,8 @@
             }
             this.preV.x = 0;
             this.preV.y = 0;
-            this.pinchStartLen = null;
             this.originCenter = null;
+            this.pinchStartLen = null;
             this.x1 = this.x2 = this.y1 = this.y2 = null;
         },
         cancel: function (evt) {
@@ -437,6 +439,7 @@
             this.touchMove.del();
             this.touchEnd.del();
             this.touchCancel.del();
+            this.originCenter = null;
             this.preV = this.pinchStartLen = this.isDoubleTap = this.delta = this.last = this.now = this.tapTimeout = this.singleTapTimeout = this.longTapTimeout = this.swipeTimeout = this.x1 = this.x2 = this.y1 = this.y2 = this.preTapPosition = this.rotate = this.touchStart = this.multipointStart = this.multipointEnd = this.pinch = this.swipe = this.tap = this.doubleTap = this.longTap = this.singleTap = this.pressMove = this.touchMove = this.touchEnd = this.touchCancel = null;
             return null;
         },
