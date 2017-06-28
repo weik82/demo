@@ -1,8 +1,4 @@
-﻿/* AlloyFinger v0.1.7
- * By dntzhang
- * Github: https://github.com/AlloyTeam/AlloyFinger
- */
-;(function () {
+﻿;(function () {
     var lastTime = 0;
     var vendors = ['webkit', 'moz'];
     for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
@@ -273,7 +269,6 @@
         this.x1 = this.x2 = this.y1 = this.y2 = null;
         this.preTapPosition = {x: null, y: null};
         this.isMulti = false;
-        this.originCenter = null;
     };
     AlloyFinger.prototype = {
         start: function (evt) {
@@ -299,12 +294,6 @@
                 var v = {x: evt.touches[1].pageX - this.x1, y: evt.touches[1].pageY - this.y1};
                 preV.x = v.x;
                 preV.y = v.y;
-                var centerX = (this.x1 + evt.touches[1].pageX) / 2;
-                var centerY = (this.y1 + evt.touches[1].pageY) / 2;
-                console.log(centerX, centerY);
-                var _ = this.element.getBoundingClientRect();
-                this.originCenter = ((centerX - _.left) / _.width * 100) + '% ' + ((centerY - _.top) / _.height * 100) + '%';
-                console.log(this.originCenter);
                 this.pinchStartLen = getLen(preV);
                 this.multipointStart.dispatch(evt, this.element);
                 this.isMulti = true;
@@ -325,7 +314,6 @@
                 if (preV.x !== null) {
                     if (this.pinchStartLen > 0) {
                         evt.zoom = getLen(v) / this.pinchStartLen;
-                        evt.originCenter = this.originCenter;
                         if (evt.zoom !== 1) {
                             this.pinch.dispatch(evt, this.element);
                         }
@@ -386,7 +374,6 @@
             }
             this.preV.x = 0;
             this.preV.y = 0;
-            this.originCenter = null;
             this.pinchStartLen = null;
             this.x1 = this.x2 = this.y1 = this.y2 = null;
         },
@@ -439,7 +426,6 @@
             this.touchMove.del();
             this.touchEnd.del();
             this.touchCancel.del();
-            this.originCenter = null;
             this.preV = this.pinchStartLen = this.isDoubleTap = this.delta = this.last = this.now = this.tapTimeout = this.singleTapTimeout = this.longTapTimeout = this.swipeTimeout = this.x1 = this.x2 = this.y1 = this.y2 = this.preTapPosition = this.rotate = this.touchStart = this.multipointStart = this.multipointEnd = this.pinch = this.swipe = this.tap = this.doubleTap = this.longTap = this.singleTap = this.pressMove = this.touchMove = this.touchEnd = this.touchCancel = null;
             return null;
         },
@@ -509,4 +495,179 @@
     };
     window.AlloyFinger = AlloyFinger;
     window.To = To;
-})();
+})()
+;(function (window, Finger, To, undefined) {
+    function Preview(el, option) {
+        this.element = typeof el === 'string' ? document.querySelector(el) : el;
+        this.imageElement = typeof option.imageEl === 'string' ? document.querySelectorAll(option.imageEl) : option.imageEl;
+        this.index = option.index || 0;
+        this.width = option.width || this.element.querySelector(option.itemEl).getBoundingClientRect().width;
+        this.size = option.size || this.imageElement.length;
+        this.init();
+        if (this.index > 0 && this.index < this.size - 1) {
+            new To(this.element, "translateX", -this.width * this.index, 0);
+        }
+    }
+
+    Preview.prototype = {
+        constructor: Preview,
+        init: function () {
+            this.wrapInit();
+            this.imagesInit();
+        },
+        wrapInit: function () {
+            var self = this;
+            new Finger(this.element, {
+                touchMove: function (evt, el) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    if (Math.abs(evt.deltaX) > Math.abs(evt.deltaY)) {
+                        To.stopAll();
+                        var _translateX = el.translateX + evt.deltaX;
+                        if (_translateX <= 0 && _translateX >= -self.width * (self.size - 1)) {
+                            el.translateX = _translateX;
+                        }
+                    }
+                },
+                swipe: function (evt, el) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    if (evt.direction === "Left") {
+                        if (self.index < self.size - 1) {
+                            self.index++;
+                            new To(el, "translateX", -self.width * self.index, 500, '', function () {
+                            });
+                        }
+                    } else if (evt.direction === "Right") {
+                        if (self.index > 0) {
+                            self.index--;
+                            new To(el, "translateX", -self.width * self.index, 500, '', function () {
+                            });
+                        }
+                    }
+                },
+                touchEnd: function (evt, el) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    var _translateX = el.translateX;
+                    var _deltaX = Math.abs(_translateX + self.width * self.index);
+                    if (_deltaX <= 30) {
+                        new To(el, "translateX", -self.width * self.index, 200, '', function () {
+                        });
+                    }
+                }
+            }, true);
+        },
+        imagesInit: function () {
+            var self = this;
+            [].forEach.call(this.imageElement, function (element) {
+                var initScale = 1, preZoom = 1,
+                    _bd = element.getBoundingClientRect(),
+                    _width = _bd.width,
+                    _height = _bd.height;
+                new AlloyFinger(element, {
+                    multipointStart: function (evt, el) {
+                        evt.stopPropagation();
+                        initScale = el.scaleX;
+                    },
+                    pinch: function (evt, el) {
+                        evt.stopPropagation();
+                        evt.preventDefault();
+                        var _zoom = initScale * evt.zoom,
+                            _translateX = el.translateX,
+                            _translateY = el.translateY;
+                        if (_zoom > 1 && _translateX) {
+                            if (_translateX > 0) {
+                                _translateX = _translateX + (_width * (_zoom - preZoom) / 2);
+                            } else if (_translateX < 0) {
+                                _translateX = _translateX - (_width * (_zoom - preZoom) / 2);
+                            }
+                            el.translateX = _translateX;
+                        }
+                        if (_zoom > 1 && _translateY) {
+                            if (_translateY > 0) {
+                                _translateY = _translateY + (_height * (_zoom - preZoom) / 2);
+                            } else if (_translateY < 0) {
+                                _translateY = _translateY - (_height * (_zoom - preZoom) / 2);
+                            }
+                            el.translateY = _translateY;
+                        }
+                        if (_zoom <= 1) {
+                            el.translateX = 0;
+                            el.translateY = 0;
+                        }
+                        preZoom = _zoom;
+                        el.scaleX = el.scaleY = _zoom;
+
+                    },
+                    multipointEnd: function (evt, el) {
+                        evt.stopPropagation();
+                        /*To.stopAll();*/
+                        // el.translateX = el.translateY = 0;
+                        var _translateX = el.translateX;
+                        // _translateX = _translateX + (_width * (el.scaleX - 2) / 2);
+                        if (el.scaleX < 1) {
+                            new To(el, "scaleX", 1, 200);
+                            new To(el, "scaleY", 1, 200);
+                            preZoom = 1;
+                        }
+                        if (el.scaleX > 2) {
+                            if (_translateX) {
+                                _translateX = _translateX + (_width * (2 - el.scaleX) / 2);
+                            }
+                            new To(el, "translateX", _translateX, 200);
+                            new To(el, "scaleX", 2, 200);
+                            new To(el, "scaleY", 2, 200);
+                            preZoom = 2;
+                        }
+                    },
+                    pressMove: function (evt, el) {
+                        var _scale = el.scaleX;
+                        if (_scale > 1) {
+                            var _width = document.documentElement.clientWidth,
+                                _height = document.documentElement.clientHeight,
+                                _rect = el.getBoundingClientRect();
+                            var _dx = el.translateX + evt.deltaX,
+                                _dy = el.translateY + evt.deltaY;
+                            if (_rect.left === 0) {
+                                el.translateX -= 0.01;
+                            }
+                            if (_width - _rect.right === 0) {
+                                el.translateX += 0.01;
+                            }
+                            if (_rect.left < 0 && _width - _rect.right < 0) {
+                                evt.stopPropagation();
+                                evt.preventDefault();
+                                if (_rect.left + evt.deltaX <= 0 && _width - _rect.right - evt.deltaX <= 0) {
+                                    el.translateX = _dx;
+                                }
+                                if (_rect.left + evt.deltaX > 0) {
+                                    el.translateX = _width * (_scale - 1) / 2;
+                                }
+                                if (_width - _rect.right - evt.deltaX > 0) {
+                                    el.translateX = -_width * (_scale - 1) / 2;
+                                }
+                            }
+                            if (_rect.top < 0 || _height - _rect.bottom < 0) {
+                                if (_rect.top + evt.deltaY <= 0 && _height - _rect.bottom - evt.deltaY <= 0) {
+                                    el.translateY = _dy;
+                                    console.log(el.translateY, evt.deltaY, _rect.top);
+                                }
+                                if (_rect.top + evt.deltaY > 0) {
+                                    el.translateY = _height * (_scale - 1) / 2;
+                                }
+                                if (_height - _rect.bottom - evt.deltaY > 0) {
+                                    el.translateY = -_height * (_scale - 1) / 2;
+                                }
+                            }
+                        } else if (_scale < 1) {
+                            evt.stopPropagation();
+                            evt.preventDefault();
+                        }
+                    }
+                }, true)
+            })
+        }
+    };
+    window.Preview = Preview;
+})(window, AlloyFinger, To);

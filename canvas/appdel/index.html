@@ -43,18 +43,25 @@
         let _position = this.getBoundingClientRect();
         new Particle(evt.target, {
             x: _position.left + 50,
-            y: _position.top + 50
+            y: _position.top + 50,
+            callback: function () {
+
+            }
         }).loop();
     }, false);
     function Particle(image, option) {
-        let _particle = document.createElement('canvas');
-        _particle.width = window.innerWidth;
-        _particle.height = window.innerHeight;
-        _particle.classList.add('canvas');
-        document.body.appendChild(_particle);
+        this._particle = document.createElement('canvas');
+        this._particle.width = window.innerWidth;
+        this._particle.height = window.innerHeight;
+        this._particle.classList.add('canvas');
+        document.body.appendChild(this._particle);
+        var noop = function () {
+        };
+        this.callback = option.callback || noop;
+        this.count = 0;
         this.tickID = null;
         this.globalAlpha = 1;
-        this.ctx = _particle.getContext('2d');
+        this.ctx = this._particle.getContext('2d');
         this.ctx.drawImage(image, 0, 0);
         let imageData = this.ctx.getImageData(0, 0, 100, 100).data;
         this.ctx.clearRect(0, 0, 100, 100);
@@ -74,7 +81,7 @@
                 });
             }
         }
-        image.parentNode.removeChild(image);
+        image.parentNode.parentNode.removeChild(image.parentNode);
     }
     Particle.prototype = {
         constructor: Particle,
@@ -86,8 +93,17 @@
         easeInExpo(t, b, c, d) {
             return (t === 0) ? b : c * Math.pow(2, 10 * (t / d - 1)) + b;
         },
-        loop: function (t) {
-            let time = t || 0;
+        easeOutQuint(t, b, c, d) {
+            return c * ((t = t / d - 1) * t * t * t * t + 1) + b;
+        },
+        easeInOutSine(t, b, c, d) {
+            return -c / 2 * (Math.cos(Math.PI * t / d) - 1) + b;
+        },
+        easeInSine(t, b, c, d) {
+            return -c * Math.cos(t / d * (Math.PI / 2)) + c + b;
+        },
+        loop: function () {
+            this.count++;
             this.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
             if (this.globalAlpha > 0) {
                 for (let i = 0, len = this._pxls.length; i < len; i++) {
@@ -102,13 +118,16 @@
                     this.ctx.fill();
                     this.ctx.restore();
                 }
-                console.log(time);
-                this.globalAlpha = this.easeInExpo(time, this.globalAlpha, -1, 3000);
+                this.globalAlpha = this.easeInSine(this.count, this.globalAlpha, -1, 120);
+                console.log(this.globalAlpha);
                 this.tickID = requestAnimationFrame(this.loop.bind(this));
             } else {
                 cancelAnimationFrame(this.tickID);
+                this._end();
             }
-
+        },
+        _end: function () {
+            this._particle.parentNode.removeChild(this._particle)
         }
     }
 </script>

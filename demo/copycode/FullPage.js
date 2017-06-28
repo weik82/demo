@@ -172,7 +172,30 @@
         element.translateX = element.translateY = element.translateZ = element.rotateX = element.rotateY = element.rotateZ = element.skewX = element.skewY = element.originX = element.originY = element.originZ = 0;
     }
 })();
-(function (Transform) {
+(function (win, undefined) {
+    'use strict';
+    var fed = {},
+        ua = win.navigator.userAgent.toLowerCase();
+    var core = {
+        isWeixin: /micromessenger/.test(ua),
+        isAndroid: /android/.test(ua),
+        isIOS: /iphone|ipad|ipod/.test(ua),
+        isMeizu: /meizu|m[0-9x]{1,3}/.test(ua),
+        isSamsung: /samsung|\b(?:sgh|sch|gt|sm)-([a-z0-9]+)/.test(ua),
+        isChrome: /chrome/.test(ua),
+        isUC: /ucbrowser/.test(ua),
+        isQQ: /mqqbrowser/.test(ua),
+        isWP: /windows phone|iemobile/.test(ua),
+        isBlackBerry: /blackberry/i.test(ua)
+    };
+    fed.UA = ua;
+    fed.detect = core;
+    fed.isMobile = core.isAndroid || core.isBlackBerry || core.isWP || core.isIOS;
+    fed.isPC = !core.isWeixin && !core.isMobile;
+    fed.wheelEvent = 'onmousewheel' in win ? 'mousewheel' : 'DOMMouseScroll';
+    win.FED = fed;
+})(window);
+(function (transform, doc, win, FED, undefined) {
     function addEvent(element, type, handler) {
         element.addEventListener(type, handler, false);
     }
@@ -183,132 +206,189 @@
 
     function FullPage(element, option) {
         this.element = typeof element === 'string' ? document.querySelector(element) : element;
-        Transform(this.element);
-        this.property = option.property;
-        this.vertical = option.vertical || true;
-        this.step = document.documentElement.clientHeight;
-        this.currentPage = 0;
-        this.pageSize = 4;
+        transform(this.element);
+        this.property = 'translateY';
+        this.vertical = true;//竖直滑动
+        this.step = doc.documentElement.clientHeight;
+        this.currentIndex = 0;
+        this.maxOffset = option.maxOffset || 100;
         this.tickID = null;
-        this.startTime = null;
-        this.startPos = null;
         this.isTouchStart = false;
         this.x1 = this.x2 = this.y1 = this.y2 = null;
-        this._preventMove = null;
-        addEvent(this.element, 'touchstart', this._start.bind(this));
-        addEvent(this.element, 'touchmove', this._move.bind(this));
-        addEvent(this.element, 'touchend', this._end.bind(this));
-        addEvent(this.element, 'touchcancel', this._cancel.bind(this));
+        this.preventMove = null;
+        this.isMoving = false;
+        var children = doc.querySelectorAll('.section'),
+            length = children.length,
+            i = 0;
+        this.pages = option.pages || length;//总页数
+        this.children = [];
+        for (; i < length; i++) {
+            var child = children[i];
+            this.children.push({
+                child: child,
+                animatedChildren: child.querySelectorAll('.animated')
+            })
+        }
+        this._transitionInit();
+        if (FED.isPC) {
+            addEvent(this.element, FED.wheelEvent, this._wheel.bind(this))
+        } else {
+            addEvent(this.element, 'touchstart', this._start.bind(this));
+            addEvent(this.element, 'touchmove', this._move.bind(this));
+            addEvent(this.element, 'touchend', this._end.bind(this));
+            addEvent(this.element, 'touchcancel', this._cancel.bind(this));
+        }
     }
 
     FullPage.prototype = {
         constructor: FullPage,
-        _start: function (evt) {
-            if (evt.touches.length === 1) {
-                this.isTouchStart = true;
-                cancelAnimationFrame(this.tickID);
-                this.x1 = this.preX = evt.touches[0].pageX;
-                this.y1 = this.preY = evt.touches[0].pageY;
-                this.startTime = new Date().getTime();
-                this.startPos = this.vertical ? this.y1 : this.x1;
-            } else {
-                this.isTouchStart = false;
+        _transitionInit: function () {
+            var i = 1,
+                len = this.children.length;
+            for (; i < len; i++) {
+                this._leavePage(i);
             }
-            this._preventMove = false;
+            this._toPage(0);
+        },
+        _wheel: function (evt) {
+            this.isMoving = true;
+            var _direction = evt.wheelDelta ? (-evt.wheelDelta / 120) : (evt.detail / 3);//1向下,-1向上
+            if ((this.currentIndex === 0 && _direction === -1)
+                || (this.currentIndex === this.pages - 1 && _direction === 1)) {
+                this.isMoving = false;
+                return;
+            } else {
+                if (_direction === -1) {
+                    this.prevOrNext(-1);
+                } else {
+                    this.prevOrNext(1);
+                }
+            }
+        },
+        _start: function (evt) {
+            if (this.isMoving)return;
+            this.isTouchStart = true;
+            if (this.tickID) cancelAnimationFrame(this.tickID);
+            this.x1 = evt.touches[0].pageX;
+            this.y1 = evt.touches[0].pageY;
+            this.preventMove = false;
         },
         _move: function (evt) {
             if (this.isTouchStart) {
-                var currentX = evt.touches[0].pageX,
-                    currentY = evt.touches[0].pageY,
-                    dDis = Math.abs(currentX - this.x1) - Math.abs(currentY - this.y1);
-                if (dDis > 0 && this.vertical) {
-                    this._preventMove = true;
-                } else if (dDis < 0 && !this.vertical) {
-                    this._preventMove = true;
+                var _currentX = evt.touches[0].pageX,
+                    _currentY = evt.touches[0].pageY,
+                    _delta = Math.abs(_currentX - this.x1) - Math.abs(_currentY - this.y1);
+                if (_delta > 0 && this.vertical) {
+                    this.preventMove = true;
                 }
-                if (!this._preventMove) {
-                    var d = (this.vertical ? currentY - this.preY : currentX - this.preX);
-                    var _el = this.element[this.property];
-                    var _property = _el + d;
-                    if (_property > 50) {
-                        this.element[this.property] = 50;
-                    } else if (_property < -(this.pageSize - 1) * this.step - 50) {
-                        this.element[this.property] = -(this.pageSize - 1) * this.step - 50;
+                if (!this.preventMove) {
+                    var _deltaY = this.vertical ? _currentY - this.y1 : _currentX - this.x1,
+                        _property = this.element[this.property] + _deltaY,
+                        _downOffset = -(this.pages - 1) * this.step - this.maxOffset;
+                    if (_property >= this.maxOffset) {
+                        this.element[this.property] = this.maxOffset;
+                    } else if (_property < _downOffset) {
+                        this.element[this.property] = _downOffset;
                     } else {
-                        this.element[this.property] += d;
+                        this.element[this.property] += _deltaY;
                     }
-                    this.preX = currentX;
-                    this.preY = currentY;
-
                 }
+                this.x1 = _currentX;
+                this.y1 = _currentY;
             }
         },
         _end: function (evt) {
+            this.isMoving = true;
             this.isTouchStart = false;
-            var step_v = this.currentPage * this.step * -1;
-            var v = this.element[this.property];
-            var dx = v - step_v;
-            if ((this.currentPage === 0 && v > step_v)
-                || (this.currentPage === this.pageSize - 1 && v < step_v)
-                || Math.abs(dx) <= 50) {
-                this.to(step_v);
-            } else if (dx > 50) {
-                this.prev();
-            } else if (dx < -50) {
-                this.next();
+            this.preventMove = true;
+            var _stepV = -this.currentIndex * this.step,
+                _property = this.element[this.property],
+                _dv = _property - _stepV;
+            if ((this.currentIndex === 0 && _property > _stepV) ||
+                (this.currentIndex === this.pages - 1 && _property < _stepV)
+                || Math.abs(_dv) <= 50) {
+                this.to(_stepV);
+            } else if (_dv > 50) {
+                this.prevOrNext(-1);
+            } else if (_dv < -50) {
+                this.prevOrNext(1);
             }
         },
         _cancel: function (evt) {
             this._end(evt);
         },
+        prevOrNext: function (num) {
+            var index = this.currentIndex;
+            this.currentIndex += num;
+            this.to(-this.currentIndex * this.step, index)
+        },
         to: function (value, index) {
-            this._to(value, 200, ease, function change() {
-
-            }, function end() {
-                if (index !== undefined) {
+            this._to(value, 400, ease, null, function () {
+                this.isMoving = false;
+                if (index > -1) {
                     this._leavePage(index);
-                    this._toPage(this.currentPage);
+                    this._toPage(this.currentIndex);
                 }
             }.bind(this))
         },
-        prev: function () {
-            var index = this.currentPage;
-            this.currentPage--;
-            this.to(this.currentPage * this.step * -1, index)
-        },
-        next: function () {
-            var index = this.currentPage;
-            this.currentPage++;
-            this.to(this.currentPage * this.step * -1, index)
-        },
         _toPage: function (index) {
             console.log('to:' + index)
+            var _animate = this.children[index].animatedChildren,
+                _len = _animate.length, i = 0;
+            if (_len > 0) {
+                for (; i < _len; i++) {
+                    var _node = _animate[i],
+                        _dataSet = _node.dataset,
+                        _delay = parseInt(_dataSet.delay) || 0,
+                        _enter = _dataSet.enter,
+                        _leave = _dataSet.leave;
+                    _node.style.visibility = "hidden";
+                    setTimeout((function (node, enter, leave) {
+                        return function () {
+                            node.style.visibility = 'visible';
+                            node.classList.add.apply(node.classList, enter.split(' '));
+                            node.classList.remove.apply(node.classList, leave.split(' '));
+                        }
+                    })(_node, _enter, _leave), _delay);
+                }
+            }
         },
         _leavePage: function (index) {
             console.log('leave:' + index)
+            var _animate = this.children[index].animatedChildren,
+                _len = _animate.length, i = 0;
+            if (_len > 0) {
+                for (; i < _len; i++) {
+                    var _node = _animate[i],
+                        _dataSet = _node.dataset,
+                        _enter = _dataSet.enter,
+                        _leave = _dataSet.leave;
+                    _node.classList.add.apply(_node.classList, _leave.split(' '));
+                    _node.classList.remove.apply(_node.classList, _enter.split(' '));
+                }
+            }
         },
         _to: function (value, time, ease, onChange, onEnd) {
             var el = this.element,
-                property = this.property;
-            var current = el[property];
-            var dv = value - current;
-            var beginTime = new Date();
-            var self = this;
-            var toTick = function () {
-                var dt = new Date() - beginTime;
-                if (dt >= time) {
-                    el[property] = value;
-                    onChange && onChange.call(self, value);
-                    onEnd && onEnd.call(self, value);
-                    return;
-                }
-                el[property] = dv * ease(dt / time) + current;
-                self.tickID = requestAnimationFrame(toTick);
-                //cancelAnimationFrame必须在 tickID = requestAnimationFrame(toTick);的后面
-                onChange && onChange.call(self, el[property]);
-            };
+                property = this.property,
+                current = el[property],
+                dv = value - current,
+                beginTime = new Date(),
+                self = this,
+                toTick = function () {
+                    var dt = new Date() - beginTime;
+                    if (dt >= time) {
+                        el[property] = value;
+                        onChange && onChange.call(self, value);
+                        onEnd && onEnd.call(self, value);
+                        return;
+                    }
+                    el[property] = dv * ease(dt / time) + current;
+                    self.tickID = requestAnimationFrame(toTick);
+                    onChange && onChange.call(self, el[property]);
+                };
             toTick();
         }
     };
     window.FullPage = FullPage;
-})(Transform);
+})(Transform, document, window, FED);
