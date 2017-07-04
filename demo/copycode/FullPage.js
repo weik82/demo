@@ -191,7 +191,7 @@
     fed.UA = ua;
     fed.detect = core;
     fed.isMobile = core.isAndroid || core.isBlackBerry || core.isWP || core.isIOS;
-    fed.isPC = !core.isWeixin && !core.isMobile;
+    fed.isPC = !core.isWeixin && !fed.isMobile;
     fed.wheelEvent = 'onmousewheel' in win ? 'mousewheel' : 'DOMMouseScroll';
     win.FED = fed;
 })(window);
@@ -207,6 +207,11 @@
     function FullPage(element, option) {
         this.element = typeof element === 'string' ? document.querySelector(element) : element;
         transform(this.element);
+        var noop = function () {
+        };
+        this.leavePage = option.leavePage || noop;
+        this.enterPage = option.enterPage || noop;
+        this.beginPage = option.beginPage || noop;
         this.property = 'translateY';
         this.vertical = true;//竖直滑动
         this.step = doc.documentElement.clientHeight;
@@ -220,7 +225,7 @@
         var children = doc.querySelectorAll('.section'),
             length = children.length,
             i = 0;
-        this.pages = option.pages || length;//总页数
+        this.pages = length;//总页数
         this.children = [];
         for (; i < length; i++) {
             var child = children[i];
@@ -248,7 +253,8 @@
             for (; i < len; i++) {
                 this._leavePage(i);
             }
-            this._toPage(0);
+            this.beginPage.call(this, this.currentIndex);
+            this._enterPage(0);
         },
         _wheel: function (evt) {
             this.isMoving = true;
@@ -256,7 +262,6 @@
             if ((this.currentIndex === 0 && _direction === -1)
                 || (this.currentIndex === this.pages - 1 && _direction === 1)) {
                 this.isMoving = false;
-                return;
             } else {
                 if (_direction === -1) {
                     this.prevOrNext(-1);
@@ -323,15 +328,19 @@
             this.to(-this.currentIndex * this.step, index)
         },
         to: function (value, index) {
+            if (index > -1) {
+                this.enterPage.call(this, this.currentIndex);
+                this.leavePage.call(this, index);
+            }
             this._to(value, 400, ease, null, function () {
                 this.isMoving = false;
                 if (index > -1) {
                     this._leavePage(index);
-                    this._toPage(this.currentIndex);
+                    this._enterPage(this.currentIndex);
                 }
             }.bind(this))
         },
-        _toPage: function (index) {
+        _enterPage: function (index) {
             console.log('to:' + index)
             var _animate = this.children[index].animatedChildren,
                 _len = _animate.length, i = 0;
