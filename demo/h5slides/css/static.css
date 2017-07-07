@@ -1,0 +1,78 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.full-page {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.top-nav, .left-nav, .right-nav, .center-layout {
+    position: absolute;
+}
+
+.top-nav {
+    height: 40px;
+    left: 0;
+    top: 0;
+    right: 0;
+    border-bottom: 1px solid #d4d4d4;
+    background-image: linear-gradient(to bottom, #ffffff, #f2f2f2);
+    box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
+    z-index: 2;
+}
+
+.left-nav {
+    left: 0;
+    top: 40px;
+    bottom: 0;
+    width: 240px;
+    border-right: 1px solid #d4d4d4;
+    box-shadow: 1px 0 10px rgba(0, 0, 0, .1);
+    z-index: 1;
+}
+
+.right-nav {
+    right: 0;
+    top: 40px;
+    bottom: 0;
+    width: 280px;
+    border-left: 1px solid #d4d4d4;
+    box-shadow: -1px 0 10px rgba(0, 0, 0, .1);
+    z-index: 1;
+}
+
+.center-layout {
+    top: 40px;
+    bottom: 0;
+    left: 240px;
+    right: 280px;
+}
+
+/*themes*/
+.default .top-nav {
+    background-color: #F9F9F9;
+}
+
+.default .left-nav {
+    background-color: #FFFFFF;
+}
+
+.default .center-layout {
+    background-color: #ddd;
+}
+
+.default .right-nav {
+    background-color: #FAFAFA;
+}
