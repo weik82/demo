@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width,height=device-height;initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width,height=device-height,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="full-screen" content="yes"/>
     <meta name="x5-fullscreen" content="true"/>
+    <!--<meta http-equiv="Cache-Control" content="max-age=7200" />-->
+    <meta http-equiv="expires" content="Tue, 03 Jan 2018 10:07:55 GMT"/>
     <title>Title</title>
     <link rel="stylesheet" href="css/app.css">
 </head>
@@ -26,16 +27,25 @@
         </div>
     </div>
 </div>
-<script src="./alloy_finger.js"></script>
+<script src="finger_preview.js"></script>
 <script>
     var _width = document.querySelector('.swipe-item').getBoundingClientRect().width;
     new Preview('#swipe', {
         index: 0,
         width: _width,
-        size: 1,
+        size: 4,
         itemEl: '.swipe-item',
         imageEl: '.swipe-image'
     })
 </script>
 </body>
 </html>
+
+<!--
+追溯重构前端开发及bug修复
+风控项目新增数据模型场景监测及内嵌大屏调整
+大屏展示前端开发
+追溯大平台前端开发
+爬虫系统web端前端开发及bug修复
+h5页面图片全屏预览开发
+-->

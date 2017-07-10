@@ -20,7 +20,7 @@ body{
     position: relative;
 }
 .swipe .swipe-wrap{
-    width: 100%;
+    width: 400%;
     height: 100%;
     display: flex;
     flex-flow: row nowrap;
