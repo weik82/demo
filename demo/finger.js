@@ -392,17 +392,21 @@
             if (!evt.changedTouches) return;
             this._cancelLongTap();
             var self = this;
+            var _deltaTime = Date.now() - this.now;
             if (evt.targetTouches.length < 2 && this.isMultiTouch) {
                 this.multipointEnd.dispatch(evt, this.element);
                 this.isMultiTouch = false;
             }
             //swipe
+            evt.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
             if ((this.x2 && Math.abs(this.x1 - this.x2) > 30) ||
                 (this.y2 && Math.abs(this.y1 - this.y2) > 30)) {
-                evt.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
-                this.swipeTimeout = setTimeout(function () {
-                    self.swipe.dispatch(evt, self.element);
-                }, 0)
+                if (_deltaTime < 1000) {
+                    evt.direction = this._swipeDirection(this.x1, this.x2, this.y1, this.y2);
+                    this.swipeTimeout = setTimeout(function () {
+                        self.swipe.dispatch(evt, self.element);
+                    }, 0)
+                }
             } else {
                 this.tapTimeout = setTimeout(function () {
                     self.tap.dispatch(evt, self.element);
@@ -420,6 +424,7 @@
                     this.isSingleTap = false;
                 }
             }
+            evt.deltaTime = _deltaTime;
             this.touchEnd.dispatch(evt, this.element);
             this.preV.x = 0;
             this.preV.y = 0;
@@ -526,13 +531,16 @@
                 },
                 swipe: function (evt, el) {
                     evt.preventDefault();
+                    console.log(6)
                     if (evt.direction === "Left") {
+                        console.log(7)
                         if (self.index < self.size - 1) {
                             self.index++;
                             new To(el, "translateX", -self.clientWidth * self.index, 300);
                             self.isWrapMoving = false;
                         }
                     } else if (evt.direction === "Right") {
+                        console.log(8)
                         if (self.index > 0) {
                             self.index--;
                             new To(el, "translateX", -self.clientWidth * self.index, 300);
@@ -547,11 +555,32 @@
                 },
                 touchEnd: function (evt, el) {
                     evt.preventDefault();
-                    var _deltaX = Math.abs(el.translateX + self.clientWidth * self.index);
-                    if (_deltaX <= 30) {
+                    var _deltaX = el.translateX + self.clientWidth * self.index;
+                    console.log(1)
+                    if (Math.abs(_deltaX) <= 30) {
+                        console.log(2)
                         new To(el, "translateX", -self.clientWidth * self.index, 300);
                         self.isWrapMoving = false;
                     }
+                    if (evt.deltaTime >= 1000 || ['Up', 'Down'].indexOf(evt.direction) > -1) {
+                        console.log(3)
+                        if (_deltaX < -30) {
+                            console.log(4)
+                            if (self.index < self.size - 1) {
+                                self.index++;
+                                new To(el, "translateX", -self.clientWidth * self.index, 300);
+                                self.isWrapMoving = false;
+                            }
+                        } else if (_deltaX > 30) {
+                            console.log(5)
+                            if (self.index > 0) {
+                                self.index--;
+                                new To(el, "translateX", -self.clientWidth * self.index, 300);
+                                self.isWrapMoving = false;
+                            }
+                        }
+                    }
+
                 }
             }, true);
         },
@@ -562,14 +591,7 @@
                     _bd = element.getBoundingClientRect(),
                     _width = _bd.width,
                     _height = _bd.height,
-                    _maxZoom, _mMaxZoom;
-                if (_height < self.clientHeight) {
-                    var _float = ('' + self.clientHeight / _height).substr(0, 4);
-                    _maxZoom = parseFloat(_float);
-                } else {
-                    _maxZoom = 2;
-                }
-                _mMaxZoom = 0.5 + _maxZoom;
+                    _maxZoom = 2, _mMaxZoom = 2.5;
                 new AlloyFinger(element, {
                     multipointStart: function (evt, el) {
                         evt.preventDefault();
@@ -640,9 +662,6 @@
                             new To(el, "translateY", _translateY, 200);
                             new To(el, "scaleX", _maxZoom, 200);
                             new To(el, "scaleY", _maxZoom, 200);
-                            if (_height < self.clientHeight) {
-                                el.translateY = 0;
-                            }
                             preZoom = _maxZoom;
                         }
                     },
@@ -653,61 +672,58 @@
                     },
                     pressMove: function (evt, el) {
                         // console.log(evt.direction, evt.deltaX);
-                        var _scale = el.scaleX;
-                        if (_scale > 1) {
-                            var _width = document.documentElement.clientWidth,
-                                _height = document.documentElement.clientHeight,
-                                _rect = el.getBoundingClientRect();
-                            var _dx = el.translateX + evt.deltaX,
+                        var _scale = el.scaleX, _rect, _dx, _dy;
+                        if (_scale === 1) {
+                            _rect = el.getBoundingClientRect();
+                            if (_rect.height - self.clientHeight > 0 && (evt.direction === 'Up' || evt.direction === 'Down')) {
+                                evt.stopPropagation();
                                 _dy = el.translateY + evt.deltaY;
-                            /*if (_rect.left === 0) {
-                             el.translateX -= 0.01;
-                             }
-                             if (_width - _rect.right === 0) {
-                             el.translateX += 0.01;
-                             }*/
-                            if (_rect.left <= 0 && _rect.right - _width >= 0) {
-                                /*if (evt.direction === 'Left' && _width - _rect.right - evt.deltaX <= 0) {
-                                 evt.stopPropagation();
-                                 evt.preventDefault();
-                                 el.translateX = _dx;
-                                 }
-                                 if (evt.direction === 'Right' && _rect.left + evt.deltaX <= 0) {
-                                 evt.stopPropagation();
-                                 evt.preventDefault();
-                                 el.translateX = _dx;
-                                 }*/
-                                if (_rect.left + evt.deltaX < 0 && _rect.right + evt.deltaX - _width > 0) {
+                                if (_rect.top + evt.deltaY < 0 && _rect.bottom + evt.deltaY - self.clientHeight > 0) {
+                                    el.translateY = _dy;
+                                } else {
+                                    if (_rect.top + evt.deltaY >= 0) {
+                                        el.translateY = (_rect.height - self.clientHeight) / 2;
+                                    } else if (_rect.bottom + evt.deltaY - self.clientHeight <= 0) {
+                                        el.translateY = -(_rect.height - self.clientHeight) / 2;
+                                    }
+                                }
+                            }
+                        } else if (_scale > 1) {
+                            _rect = el.getBoundingClientRect();
+                            _dx = el.translateX + evt.deltaX;
+                            _dy = el.translateY + evt.deltaY;
+                            if (_rect.left <= 0 && _rect.right - self.clientWidth >= 0) {
+                                if (_rect.left + evt.deltaX < 0 && _rect.right + evt.deltaX - self.clientWidth > 0) {
                                     evt.stopPropagation();
                                     evt.preventDefault();
                                     el.translateX = _dx;
-                                }
-                                if (_rect.left + evt.deltaX >= 0) {
-                                    el.translateX = _width * (_scale - 1) / 2;
-                                }
-                                if (_rect.right + evt.deltaX - _width <= 0) {
-                                    el.translateX = -_width * (_scale - 1) / 2;
+                                } else {
+                                    if (_rect.left + evt.deltaX >= 0) {
+                                        el.translateX = Math.floor((_rect.width - self.clientWidth) / 2);
+                                    } else if (_rect.right + evt.deltaX - self.clientWidth <= 0) {
+                                        el.translateX = -Math.floor((_rect.width - self.clientWidth) / 2);
+                                    }
                                 }
                             }
-                            if (_rect.top <= 0 && _rect.bottom - _height >= 0) {
-                                if (_rect.top + evt.deltaY < 0 && _rect.bottom + evt.deltaY - _height > 0) {
+                            if (_rect.top <= 0 || _rect.bottom - self.clientHeight >= 0) {
+                                if (_rect.top + evt.deltaY < 0 && _rect.bottom + evt.deltaY - self.clientHeight > 0) {
+                                    if (evt.direction === 'Up' || evt.direction === 'Down') {
+                                        evt.stopPropagation();
+                                    }
                                     el.translateY = _dy;
-                                    // console.log(el.translateY, evt.deltaY, _rect.top);
-                                }
-                                if (_rect.top + evt.deltaY >= 0) {
-                                    el.translateY = _height * (_scale - 1) / 2;
-                                }
-                                if (_rect.bottom + evt.deltaY - _height <= 0) {
-                                    el.translateY = -_height * (_scale - 1) / 2;
+                                } else {
+                                    if (_rect.top + evt.deltaY >= 0) {
+                                        el.translateY = Math.floor((_rect.height - self.clientHeight) / 2);
+                                    } else if (_rect.bottom + evt.deltaY - self.clientHeight <= 0) {
+                                        el.translateY = -Math.floor((_rect.height - self.clientHeight) / 2);
+                                    }
                                 }
                             }
-                            if (_height < self.clientHeight) {
-                                el.translateY = 0;
-                            }
-                            // console.log(el.translateY);
                         } else if (_scale < 1) {
                             evt.stopPropagation();
                             evt.preventDefault();
+                            el.translateY = 0;
+                            el.translateX = 0;
                         }
                     }
                 }, true)

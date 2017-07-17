@@ -1,15 +1,18 @@
-function isEmptyObject(e) {
-    for (let t in e)return false;
-    return true;
+function isEmptyObject(obj) {
+    return Object.keys(obj).length === 0;
 }
 function isObject(obj) {
     return ({}).toString.call(obj) === '[object Object]';
 }
 function parse2query(object) {
-    let str;
-    if (!isEmptyObject(object)) {
-        str = JSON.stringify(object);
-        return '?' + str.replace(/[\"{}]/g, '').replace(/,/g, '&').replace(/:/g, '=');
+    let str = [];
+    if (isObject(object) && !isEmptyObject(object)) {
+        for (let key in object) {
+            if (object.hasOwnProperty(key)) {
+                str.push(key + '=' + object[key]);
+            }
+        }
+        return '?' + str.join('&');
     }
     return '';
 }
@@ -88,24 +91,20 @@ class XHR {
 
  export default XHR;*/
 const api = new XHR();
-api.get('./1.json')
-    .then(function (res) {
-        console.log(res)
-    })
-/*api.setCommonHeader({
- "CA-Token": '3413]39DD6B48F926B7810001015D15AFB287]1]5]1]1',
- "Client-Flag": 1
- });
- api.post('http://10.12.10.20:8080/CACoreV2/v2/user/getusertreeapi', {
- "roleid": 1,
- "userid": 1,
- "usertype": 5,
- "nusertype": 0,
- "companyid": 2,
- "aaid": "-1",
- "ppid": "1"
- }).then(function (res) {
- console.dir(res);
- });*/
+api.setCommonHeader({
+    "CA-Token": '3413]39DD6B48F926B7810001015D15AFB287]1]5]1]1',
+    "Client-Flag": 1
+});
+api.post('http://10.12.10.20:8080/CACoreV2/v2/user/getusertreeapi', {
+    "roleid": 1,
+    "userid": 1,
+    "usertype": 5,
+    "nusertype": 0,
+    "companyid": 2,
+    "aaid": "-1",
+    "ppid": "1"
+}).then(function (res) {
+    console.dir(res);
+});
 
 
