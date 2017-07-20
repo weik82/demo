@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width,user-scalable=yes">
+    <meta name="format-detection" content="telephone=no"/>
+    <title id="title">player</title>
+    <link rel="stylesheet" href="css/player.css">
+</head>
+<body>
+<div class="playerPop">
+    <div class="inset">
+        <div class="playerbody" id="video">
+            <video id="videoSource" style="width:100%; height: calc(100% - 25px);" src="http://gslb.miaopai.com/stream/B~dRdhKMQeI6cuE5aqoGYoVaqbu0YNVn.mp4"></video>
+            <input id="sourceUrl" type="text">
+            <div class="player-control">
+                <div class="play-btn ">
+                    <div class="play-btn-wrapper">
+                        <div class="btn-wrapper btn-wrapper-start">
+                            <span id="play-start" class="play-start"></span>
+                        </div>
+                        <div class="btn-wrapper btn-wrapper-stop">
+                            <span class="play-stop"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="play-process">
+                    <div class="play-process-all"></div>
+                    <div class="play-process-drag"></div>
+                    <div class="play-process-before"></div>
+                    <span class="play-process-btn"></span>
+                </div>
+                <div class="play-msg">
+						<span class="play-time">
+							<span class="play-current-time">00:00</span>/<span class="play-all-time"></span>
+						</span>
+                    <span class="play-sound">
+							<div class="play-sound-switch">
+								<span id="sound-switch" class="play-sound-on"></span>	
+							</div>
+							<div class="play-sound-wrapper">
+								<div class="play-sound-all"></div>
+								<div class="play-sound-drag"></div>
+								<span class="play-sound-btn"></span>
+							</div>
+						</span>
+                    <span class="play-screen">
+							<span id="screen-full-swtich" class="play-screen-not-full"></span>
+						</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script src="js/player.js"></script>
+</body>
+</html>
