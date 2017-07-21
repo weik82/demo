@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<video width="320" height="320" autoplay></video>
+<script>
+    window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+    let UM, video = document.querySelector('video');
+    video.onloadedmetadata = function (e) {
+        console.log(e);
+        // Do something with the video here.
+    };
+    /*if (navigator.mediaDevices.getUserMedia) {
+        UM = navigator.mediaDevices.getUserMedia({audio: true, video: true});
+        UM.then(function (mediaStream) {
+            video.src = window.URL.createObjectURL(mediaStream);
+        });
+        UM.catch(function (err) {
+            console.log(err.name);
+        });
+    } else {
+        navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+        UM = navigator.getUserMedia({audio: true, video: true},
+            function (mediaStream) {
+                video.src = window.URL.createObjectURL(mediaStream);
+            },
+            function (err) {
+                console.log(err.name);
+            })
+    }*/
+</script>
+</body>
+</html>
