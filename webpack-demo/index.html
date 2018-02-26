@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<!-- <script src="./anime.js"></script> -->
+<script>
+    document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+        // 通过下面这个API隐藏右上角按钮
+        // alert(111111);
+        // WeixinJSBridge.call('hideOptionMenu');
+    });
+
+    var _forEach = Array.prototype.forEach;
+    Array.prototype.forEach = function (fn) {
+        _forEach.call(this.map((item) =>item + 1), fn);
+    }
+var arr =[1, 2, 3];
+    arr.forEach(function(item, index){console.log(item)})
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<script src="./utils/promise.js"></script>
+<!-- <script>
+    function async1() {
+        return new CPromise(
+            (resolve, reject) => {
+                console.log('async1 start');
+                setTimeout(() => {
+                    resolve('async1 finished')
+                }, 1000);
+            }
+        );
+    }
+
+    function async2() {
+        return new CPromise(
+            (resolve, reject) => {
+                console.log('async2 start');
+                setTimeout(() => {
+                    resolve('async2 finished')
+                }, 1000);
+            }
+        );
+    }
+
+    function async3() {
+        return new CPromise(
+            (resolve, reject) => {
+                console.log('async3 start');
+                setTimeout(() => {
+                    resolve('async3 finished');
+                }, 1000);
+            }
+        );
+    }
+
+    async1()
+        .then(
+            data => {
+                console.log(data);
+                return async2();
+            })
+        .then(
+            data => {
+                console.log(data);
+                return async3();
+            }
+        )
+        .then(
+            data => {
+                console.log(data);
+            }
+        );
+</script> -->
+<script>
+    // CPromise.resolve(new CPromise(
+    //     (resolve, reject) => {
+    //         console.log('async3 start');
+    //         setTimeout(() => {
+    //             resolve('async3 finished');
+    //         }, 1000);
+    //     }
+    // ))
+    //     .then(data => {
+    //         console.log(data);
+    //     });
+    // CPromise.reject(new Error('FAIL'))
+    //     .then(null, data => {
+    //         console.log(data);
+    //     })
+    // function async1() {
+    //     return new CPromise(
+    //         (resolve, reject) => {
+    //             console.log('async1 start');
+    //             setTimeout(() => {
+    //                 reject('async1 finished')
+    //             }, 1000);
+    //         }
+    //     );
+    // }
+    // CPromise.all([1,async1()])
+    // .then(data => {
+    //        console.log(data);
+    //   },data => {
+    //        console.log('error:'+data);
+    //   })
+</script>
+<script>
+    // var p1 = new CPromise(function (resolve, reject) {
+    //     resolve('Success');
+    // });
+    // p1.then(function (value) {
+    //     console.log(value); // "成功!"
+    //     // throw 'oh, no!';
+    //     return 'hhhhhhhhhh'
+    // }).catch(function (e) {
+    //     console.log(e); // "oh, no!"
+    // }).then(function () {
+    //     console.log('after a catch the chain is restored');
+    // }, function () {
+    //     console.log('Not fired due to the catch');
+    // });
+</script>
+<script>
+    var promise1 = new CPromise(function (resolve, reject) {
+        setTimeout(resolve, 500, 'one');
+    });
+
+    var promise2 = new CPromise(function (resolve, reject) {
+        setTimeout(reject, 100, 'two');
+    });
+
+    CPromise.race([promise1, promise2]).then(
+            function (value) {
+                console.log(value);
+                // Both resolve, but promise2 is faster
+            }, function (value) {
+                console.log('reject:' + value);
+                throw 'oh, no!';
+                // Both resolve, but promise2 is faster
+            }).catch(data => {
+                console.log(data)
+            });
+</script>
+</body>
+</html>
